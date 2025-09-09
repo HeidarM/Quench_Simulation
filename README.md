@@ -5,7 +5,7 @@ Reproducing some of the results from arXiv:2501.04649. Using TeNPy for the class
 - V1 and V2 of the paper appears to have some typos in the construction of G(theta), H12(theta) and other details. Mathematica file checks some of these formulas.
 
 ## How to run
-Can be run by using a config file as
+Quantum algorithm (QiSkit) can be run by using a config file as
 
 python main.py --config config.yaml
 
@@ -18,5 +18,6 @@ type of tasks: simulate | run_qc | post_process
 
 Post process computes <S^x_i> and Quench Spectral Function Q(omega,k) from raw measurement bitstrings
 
-Classical simulation (using TeNPy) can be run from root folder as: python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
-Parameters are hardcoded in the classical_simulation/1d_Fermi_Hubbard_quench_spectroscopy.py
+Classical simulation (using TeNPy):
+- Can be run from root folder as: python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
+- Parameters are hardcoded in the classical_simulation/1d_Fermi_Hubbard_quench_spectroscopy.py
