@@ -1,4 +1,4 @@
-task: run_qc  # simulate | run_qc | post_process | post_process_full
+task: run_qc  # simulate | run_qc | post_process
 
 L: 30
 dt: 0.25

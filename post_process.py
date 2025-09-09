@@ -1,4 +1,4 @@
-#post_process.py
+# post_process.py
 
 from collections import Counter
 from matplotlib import pyplot as plt
@@ -47,45 +47,6 @@ def compute_Sx_i(measurement_counts: dict, i: int, L: int, N_shots: int):
         Sx_total += count * Sx_val
 
     return Sx_total / N_shots
-
-# def post_process(job_id, L):
-#     service = QiskitRuntimeService()
-#     job = service.job(job_id)
-#     print("\nJob status: \n", job.status())
-
-#     result = job.result()[0]
-
-#     counts = result.join_data().get_counts()
-#     # print("Shot counts:", counts)                        
-
-
-#     shots  = sum(counts.values())
-#     quasi  = QuasiDistribution({int(b, 2): v / shots for b, v in counts.items()})
-#     # print("Quasi-probs :", quasi.binary_probabilities())
-
-
-#     print(quasi.values())
-#     print(1.0/shots) 
-#     print(sum(quasi.values()))
-
-#     # plot_histogram(counts, title="Measurement result")    # bar chart
-#     # plt.show()
-
-#     Sx_vals = [compute_Sx_i(counts, i, L, shots) for i in range(L)]
-
-#     print(Sx_vals)
-
-#     plt.plot(range(L), Sx_vals, 'o-')
-#     plt.xlabel("site i")
-#     plt.ylabel("<Sx_i>")
-#     plt.title("Local ⟨Sx⟩ after quench")
-#     plt.grid(True)
-#     plt.ylim(-0.6, 0.6)
-#     plt.show()
-
-
-
-
 
 
 

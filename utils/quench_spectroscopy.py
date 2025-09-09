@@ -1,3 +1,5 @@
+# utils/quench_spectroscopy.py
+
 import numpy as np
 import scipy.fft as fft
 
