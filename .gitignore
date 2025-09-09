@@ -1,0 +1,55 @@
+# macOS
+.DS_Store
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build artifacts
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.python-version
+
+# Environment files
+.env
+.env.*
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Testing and coverage
+.pytest_cache/
+.coverage*
+htmlcov/
+.tox/
+.mypy_cache/
+.pytype/
+.cache/
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Logs and data dumps
+*.log
+*.out
+*.tmp
+*.csv
+*.tsv
+
+# Generated images/plots
+
+# Mathematica ancillary files
+
+# Editor swap files
+*.swp
+*.swo

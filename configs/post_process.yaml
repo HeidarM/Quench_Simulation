@@ -1,0 +1,10 @@
+task: post_process  # simulate | run_qc | post_process | post_process_full
+
+L: 60
+dt: 0.25
+J: 1.0
+U: -3.0
+N_Trotter: 30
+fill_fraction: 0.333333333
+
+job_id: d1nu1015jdrc73dqvd00
