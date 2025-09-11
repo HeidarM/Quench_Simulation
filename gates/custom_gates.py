@@ -1,13 +1,29 @@
 # gates/custom_gates.py
 
 import numpy as np
+from numbers import Real
 
 from qiskit import QuantumCircuit
-from qiskit.circuit import Parameter, Gate
+from qiskit.circuit import Parameter,ParameterExpression, Gate
 from qiskit.circuit.tools.pi_check import pi_check
 from qiskit.circuit.library import SwapGate, CPhaseGate, CHGate
 
 from .two_qubit_gates import RXX, RYY, RZZ
+
+# -------------- Helper functions --------------
+# Check if x is a parameter or parameter expression
+def _is_param(x):
+    return isinstance(x, (ParameterExpression, Parameter))
+
+# Pretty print for angles in gate labels if numerical
+def _fmt_angle_for_label(x, symbol='θ'):
+    # Pretty label: π-fraction if numeric, else the parameter's repr
+    if _is_param(x):
+        return f"{x}"
+    if isinstance(x, Real):
+        return pi_check(float(x), ndigits=3, output='text')
+    return str(x)
+# ----------------------------------------------
 
 
 def N(qc: QuantumCircuit, q1: int, q2: int, alpha: float, beta: float, gamma: float):

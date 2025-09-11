@@ -11,7 +11,7 @@ from utils.utils import get_job_by_number, print_job_summary
 
 
 def generate_Q_mat(L, N_f):
-        # Wave function for OBC
+    # Wave function for OBC
     j  = np.arange(L)                      # site indices 0 … L−1
     n  = np.arange(1, N_f + 1)[:, None]    # mode numbers 1 … N_f (column)
     k  = n * np.pi / (L + 1)               # quantised momenta (N_f×1)
