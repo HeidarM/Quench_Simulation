@@ -1,4 +1,5 @@
-# import numpy as np
+# gates/DGA_ansatz.py
+
 from qiskit import QuantumCircuit
 from qiskit.circuit import ParameterVector
 

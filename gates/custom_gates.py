@@ -23,6 +23,9 @@ def _fmt_angle_for_label(x, symbol='θ'):
     if isinstance(x, Real):
         return pi_check(float(x), ndigits=3, output='text')
     return str(x)
+
+def _is_zero(x, tol=1e-12):
+    return isinstance(x, Real) and abs(float(x)) < tol
 # ----------------------------------------------
 
 
@@ -52,13 +55,15 @@ def G_real(theta_val: float) -> Gate:
     """
 
     # Try to get symbolic π representation
-    symbolic_label = pi_check(theta_val, ndigits=3, output='text')
+    # symbolic_label = pi_check(theta_val, ndigits=3, output='text')
+    symbolic_label = _fmt_angle_for_label(theta_val, 'θ')
 
     theta = Parameter("θ")
     qc = QuantumCircuit(2)
 
     # Define the circuit
     qc.rz(-np.pi/2, 1)                          # e^{iπ/4 Z_2} = rz(-pi/2)
+    #TODO: should this be N(qc, 0, 1, -theta/2, -theta/2, 0)? Double check
     N(qc, 0, 1, theta/2, theta/2, 0)
     qc.rz(np.pi/2, 1)                           # e^{-iπ/4 Z_2} = = rz(pi/2)
 
@@ -66,11 +71,15 @@ def G_real(theta_val: float) -> Gate:
     bound_qc = qc.assign_parameters({theta: theta_val})
     return bound_qc.to_gate(label=f"G({symbolic_label})")
 
-def G(theta_val: float, phi_val: float) -> 'Gate':
+def G(theta_val: float, phi_val: float) -> Gate:
+    if _is_param(phi_val):
+        raise ValueError("Only real-valued rotations supported: phi must be numeric ≈ 0.")
+    
     if np.isclose(phi_val, 0):
         return G_real(theta_val)
     else:
         raise ValueError("Only real-valued rotation gates (phi=0) are supported, but phi =", phi_val, "was given.")
+
 
 def FSWAP() -> SwapGate:
     """
@@ -99,9 +108,11 @@ def Q(theta_val: float) -> Gate:
         with θ = π/4 in the paper.
     """
     # pretty label for the drawer
-    symbolic_label = pi_check(theta_val, ndigits=3, output='text')
+    # symbolic_label = pi_check(theta_val, ndigits=3, output='text')
+    symbolic_label = _fmt_angle_for_label(theta_val, 'θ')
 
-    theta = Parameter("θ")
+    # theta = Parameter("θ")
+    theta = theta_val if _is_param(theta_val) else Parameter("θ")
     qc = QuantumCircuit(2, name=f"Q({symbolic_label})")
 
     # Q = e^{-i θ/4 X⊗X} · e^{-i θ/4 Y⊗Y}
@@ -117,20 +128,29 @@ def H(theta_val: float) -> Gate:
         Two–qubit  hopping  gate  H(θ) := exp[-i θ/2 (XX + YY)].
     """
     # pretty π label for the drawer
-    symbolic = pi_check(theta_val, ndigits=3, output='text')
+    # symbolic_label = pi_check(theta_val, ndigits=3, output='text')
+    symbolic_label = _fmt_angle_for_label(theta_val, 'θ')
 
-    theta = Parameter("θ")                        # symbolic parameter
+    # theta = Parameter("θ")                        # symbolic parameter
+    theta = theta_val if _is_param(theta_val) else Parameter("θ") # symbolic parameter
     qc  = QuantumCircuit(2)
  
     N(qc, 0, 1, -theta/2, -theta/2, 0)
 
-    return qc.assign_parameters({theta: theta_val}).to_gate(label=f"H({symbolic})")
+    # return qc.assign_parameters({theta: theta_val}).to_gate(label=f"H({symbolic_label})")
+    if _is_param(theta_val):
+        return qc.to_gate(label=f"H({symbolic_label})")
+    else:
+        return qc.assign_parameters({theta: float(theta_val)}).to_gate(label=f"H({symbolic_label})")
+
+
 
 def O(phi_val: float) -> Gate:
     """
         O(φ) = exp[-i φ n↑ n↓]  implemented with the library CPhaseGate(-φ).
     """
-    symbolic_label = pi_check(phi_val, ndigits=3, output='text')
+    # symbolic_label = pi_check(phi_val, ndigits=3, output='text')
+    symbolic_label = _fmt_angle_for_label(phi_val, 'φ')
     qc  = QuantumCircuit(2, name=f"O({symbolic_label})")
     qc.append(CPhaseGate(-phi_val), [0, 1])
     return qc.to_gate()
