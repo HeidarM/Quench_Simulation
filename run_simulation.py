@@ -16,8 +16,6 @@ from utils.plotting import plot_Sx_t_and_Qwk
 
 
 
-
-
 def test_run(Q_mat: np.ndarray, dt: float, J: float, U: float, N_Trotter: int):
 
     N_shots = None #10024

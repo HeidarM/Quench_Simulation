@@ -1,31 +1,14 @@
 
 # runners/run_quench.py
 
-import os
-import json
-from datetime import datetime
-import numpy as np
 
 from backend.backend import BackendConfig, BackendManager
 from circuit.circuit_builder import QuenchSpectroscopyCircuits
 
-from post_process import compute_Sx_i
-from utils.plotting import plot_Sx_t_and_Qwk
+from utils.utils import append_to_job_log
 
 # For keeping a log over all jobs run and their parameters
 LOG_FILE = "job_log.jsonl"
-
-def append_to_job_log(entry):
-    job_num = 1
-    if os.path.exists(LOG_FILE):
-        with open(LOG_FILE, "r") as f:
-            job_num = sum(1 for _ in f) + 1
-    entry["job_num"] = job_num
-    entry["timestamp"] = datetime.now().isoformat()
-
-    with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(entry) + "\n")
-    return job_num
 
 
 def run_QuenchSpectroscopy(Q_mat, dt, J, U, N_Trotter, backend_config: BackendConfig):
@@ -64,31 +47,7 @@ def run_QuenchSpectroscopy(Q_mat, dt, J, U, N_Trotter, backend_config: BackendCo
         "shots": N_shots,
         }
 
-        job_num = append_to_job_log(job_entry)
+        job_num = append_to_job_log(job_entry, LOG_FILE)
         print(f"Logged job #{job_num}")
-
-    elif backend_config.kind == "aer":
-        # Extract counts and shot info for each time step
-        counts_list = []
-        shots_list = []
-
-        for result in results:
-            counts = result.join_data().get_counts()
-            shots = sum(counts.values())
-            counts_list.append(counts)
-            shots_list.append(shots)
-
-
-        print("Computing ⟨Sx_i(t)⟩ as function of time...\n")
-
-        # Build Sx_t (⟨Sx_i(t)⟩ matrix)
-        Sx_t = []
-        for t in range(N_Trotter):
-            counts = counts_list[t]
-            shots  = shots_list[t]
-            Sx_vals = [compute_Sx_i(counts, i, L, shots) for i in range(L)]
-            Sx_t.append(Sx_vals)
-
-        plot_Sx_t_and_Qwk(Sx_t, dt)
 
     return job, results

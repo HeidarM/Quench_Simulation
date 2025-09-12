@@ -1,6 +1,11 @@
 # utils/utils.py
 
+import os
 import json
+from datetime import datetime
+
+import json
+
 
 def get_job_by_number(job_num, log_file="job_log.jsonl"):
     with open(log_file, "r") as f:
@@ -29,3 +34,16 @@ def print_job_summary(job_num, log_file="job_log.jsonl"):
     print(f"  Couplings   : J = {job['J']}, U = {job['U']}")
     print(f"  Shots       : {job['shots']}")
     print("-" * 40)
+
+
+def append_to_job_log(entry, LOG_FILE):
+    job_num = 1
+    if os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "r") as f:
+            job_num = sum(1 for _ in f) + 1
+    entry["job_num"] = job_num
+    entry["timestamp"] = datetime.now().isoformat()
+
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+    return job_num
