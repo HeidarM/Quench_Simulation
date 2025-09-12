@@ -9,6 +9,7 @@ from qiskit_aer import AerSimulator
 from qiskit import transpile
 
 from gates.DGA_ansatz import DGA_ansatz
+from backend.backend import BackendManager, BackendConfig
 
 # -------- Free fermion Hamiltonian --------
 def _pauli_label(n, ops):
@@ -41,40 +42,33 @@ def free_fermion_H0(L: int, J: float = 1.0) -> SparsePauliOp:
             terms.append(_pauli_label(n, {i: 'Y', i + 1: 'Y'})); coeffs.append(-J / 2)
     return SparsePauliOp.from_list(list(zip(terms, coeffs)))
 
+
+
+
 # ---------------- VQE for DGA states  ----------------
-def VQE_DGA(L: int, N_f: int, n_layers: int):
-    """
-    Run VQE with DGA ansatz on spinful free-fermion Hamiltonian H0 for L sites,
-    N_f fermions, and n_layers of DGA.
-
-    Returns: (result, ansatz, theta)
-      result: VQEResult object
-      ansatz: QuantumCircuit object (transpiled)
-      theta: ParameterVector of ansatz parameters
-    """
-    # Build symbolic ansatz
+def run_VQE_for_DGA(L: int, N_f: int, n_layers: int, backend_config: BackendConfig, verbose: bool = False):
+    if verbose:
+        print(f"Running VQE for DGA with L={L}, N_f={N_f}, n_layers={n_layers} on {backend_config.kind} backend")
+    
+    backend_manager = BackendManager(backend_config)
     ansatz, theta = DGA_ansatz(L=L, N_f=N_f, n_layers=n_layers)
-
-    backend = AerSimulator()
-    ansatz = transpile(ansatz, backend=backend, optimization_level=2)
-
-    # Free-fermion Hamiltonian (U=0)
     H0 = free_fermion_H0(L, J=1.0)
 
-    estimator = EstimatorV2()
     optimizer = SPSA(maxiter=200)
+    init = [0.1] * len(theta) # np.zeros(len(theta))
 
-    vqe = VQE(estimator=estimator,
-              ansatz=ansatz,
-              optimizer=optimizer,
-              initial_point=[0.1] * len(theta),
-              )
-
+    if verbose:
+        print("Running VQE on DGA state...")
     # run VQE
-    result = vqe.compute_minimum_eigenvalue(operator=H0)
+    result = backend_manager.run_vqe(ansatz=ansatz,
+                                  hamiltonian=H0,
+                                  optimizer=optimizer,
+                                  initial_point=init)
 
-    print("Optimized energy  <H0>:", float(np.real(result.eigenvalue)))
-    print("Number of params:", len(theta))
-    print("Optimal parameters:", result.optimal_point)
+    if verbose:
+        print()
+        print("Number of params:", len(theta))
+        print("Optimized energy  <H0>:", float(np.real(result.eigenvalue)))
+        print("Optimal parameters:", result.optimal_point)
 
     return result, ansatz, theta

@@ -10,7 +10,11 @@ from qiskit import transpile
 
 
 from gates.DGA_ansatz import DGA_ansatz
-from circuit.VQE_DGA import VQE_DGA
+from runners.run_VQE_DGA import run_VQE_for_DGA
+from runners.run_quench import run_QuenchSpectroscopy
+
+from backend.backend import BackendConfig
+
 
 
 # def _pauli_label(n, ops):
@@ -45,38 +49,56 @@ from circuit.VQE_DGA import VQE_DGA
 
 # # ---------------- run a quick VQE on H0 with DGA ----------------
 if __name__ == "__main__":
-    # Small test instance
-    L = 8
-    N_f = 6           # total fermions
-    n_layers = 1
+    # # Small test instance
+    # L = 8
+    # N_f = 6           # total fermions
+    # n_layers = 1
 
-#     # Build symbolic ansatz
-#     ansatz, theta = DGA_ansatz(L=L, N_f=N_f, n_layers=n_layers)
+    # # Build symbolic ansatz
+    # ansatz, theta = DGA_ansatz(L=L, N_f=N_f, n_layers=n_layers)
 
-#     backend = AerSimulator()
-#     ansatz = transpile(ansatz, backend=backend, optimization_level=2)
+    # backend = AerSimulator()
+    # ansatz = transpile(ansatz, backend=backend, optimization_level=2)
 
-#     # Free-fermion Hamiltonian (U=0)
-#     H0 = free_fermion_H0(L, J=1.0)
+    # # Free-fermion Hamiltonian (U=0)
+    # H0 = free_fermion_H0(L, J=1.0)
 
-#     # Estimator + VQE
-#     estimator = EstimatorV2(options={"default_precision": 1e-2})  # shots-like behavior
-#     opt = SPSA(maxiter=100)
-#     vqe = VQE(estimator=estimator, ansatz=ansatz, optimizer=opt, initial_point=np.zeros(len(theta)))
+    # # Estimator + VQE
+    # estimator = EstimatorV2(options={"default_precision": 1e-2})  # shots-like behavior
+    # opt = SPSA(maxiter=100)
+    # vqe = VQE(estimator=estimator, ansatz=ansatz, optimizer=opt, initial_point=np.zeros(len(theta)))
 
-#     res = vqe.compute_minimum_eigenvalue(H0)
+    # res = vqe.compute_minimum_eigenvalue(H0)
 
-#     print("Optimized energy  <H0>:", float(np.real(res.eigenvalue)))
-#     print("Number of params:", len(theta))
-#     print("Optimal parameters:", res.optimal_point)
+    # print("Optimized energy  <H0>:", float(np.real(res.eigenvalue)))
+    # print("Number of params:", len(theta))
+    # print("Optimal parameters:", res.optimal_point)
 
-#     # If you want to see the circuit with numbers bound (purely for plotting):
-#     bound = ansatz.assign_parameters({theta: res.optimal_point})
-#     try:
-#         from matplotlib import pyplot as plt
-#         bound.draw(output="mpl")
-#         plt.show()
-#     except Exception:
-#         print(bound.draw(output="text"))
+    # # If you want to see the circuit with numbers bound (purely for plotting):
+    # bound = ansatz.assign_parameters({theta: res.optimal_point})
+    # try:
+    #     from matplotlib import pyplot as plt
+    #     bound.draw(output="mpl")
+    #     plt.show()
+    # except Exception:
+    #     print(bound.draw(output="text"))
 
-    VQE_DGA(L=L, N_f=N_f, n_layers=n_layers)
+    
+    from main import *
+    
+    backend_config = BackendConfig(kind="aer", transpile_ol=0, default_precision=1e-2)
+    run_VQE_for_DGA(L=6, N_f=4, n_layers=2, backend_config=backend_config, verbose=True)
+
+
+    Q_mat = generate_Q_mat(L=6, N_f=4)
+    backend_config = BackendConfig(kind="aer", transpile_ol=0, shots=None)  # None → quasi-probs
+    job, results = run_QuenchSpectroscopy(Q_mat, 0.1, 1, 0.2, 10, backend_config)
+
+    print("Job:", job)
+    print("Job id:", job.job_id())
+    # for result in results:
+    #     print("Counts:", result.join_data().get_counts())
+    #     print()
+
+
+

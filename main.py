@@ -9,6 +9,8 @@ from run_on_quantum_computer import Quantum_HW_run
 from post_process import post_process
 from utils.utils import get_job_by_number, print_job_summary
 
+from backend.backend import BackendConfig
+from runners.run_quench import run_QuenchSpectroscopy
 
 def generate_Q_mat(L, N_f):
     # Wave function for OBC
@@ -44,15 +46,18 @@ def main(config):
 
     task = config["task"]
     if task == "simulate":
-        test_run(Q_mat, dt, J, U, N_Trotter)
+        backend_config = BackendConfig(kind="aer", transpile_ol=0, default_precision=1e-2)
+        job, results = run_QuenchSpectroscopy(Q_mat, dt, J, U, N_Trotter, backend_config=backend_config)
     elif task == "run_qc":
-        Quantum_HW_run(Q_mat, dt, J, U, N_Trotter)
+        backend_config = BackendConfig(kind="ibm", transpile_ol=0, default_precision=1e-2)
+        job, results = run_QuenchSpectroscopy(Q_mat, dt, J, U, N_Trotter, backend_config=backend_config)
     elif task == "post_process":
         post_process(config["job_id"], L, N_Trotter, dt)
     else:
         raise ValueError(f"Unknown task: {task}")
     
 
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
