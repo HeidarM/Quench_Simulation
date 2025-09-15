@@ -7,6 +7,8 @@ from gates.givens_rotations import slaters_determinant_givens_rotation_list
 from gates.custom_gates import G, Q, BXY, FSWAP
 from .trotter import trotter_step
 
+from backend.backend import BackendConfig
+from runners.run_VQE_DGA import run_VQE_for_DGA
 
 # For re-ordering qubits with based on spins: (↑…↑)(↓…↓) into (↑,↓)…(↑,↓)
 def _interleave_pairs(L: int):
@@ -32,40 +34,20 @@ def reorder_qubits(qc: QuantumCircuit, L: int):
 
 
 
-def QuenchSpectroscopyCircuit(Q_mat: np.ndarray, dt: float, J: float,
-                              U: float, N_Trotter: int) -> QuantumCircuit:
+def QuenchSpectroscopyCircuit(  initial_state: QuantumCircuit,
+                                    dt: float, J: float, U: float, N_Trotter: int) -> QuantumCircuit:
     """
-    Build the full Fig-4 circuit for an arbitrary number of sites L≥2.
+    Build the full Fig-4 circuit for an arbitrary number of sites L≥2 (if initial state is a Slater determinant).
 
     Evolves the system for t = N_Trotter * dt.
 
     """
-    N_f, L = Q_mat.shape
 
-    if L < 2: raise ValueError("Need at least 2 sites.")
-    if N_f > 2*L: raise ValueError("More fermions than states")
+    qc = initial_state.copy()
+    qc.name = "QuenchSpectroscopy"
 
-    qc = QuantumCircuit(2*L)
-
-
-    # ---- Create Slater's determinant state ----
-    # Given rotations needed
-    rot_list = slaters_determinant_givens_rotation_list(Q_mat)
-
-    # print([φ for (j, k, θ, φ) in rot_list])
-
-    # Put N_f/2 fermions in ↑ block and N_f/2 in ↓ block
-    for q in range(N_f):
-        qc.x(q)           # ↑ block
-        qc.x(q+L)         # ↓ block
-
-    # Create Slaters determinant circuit
-    for (j, k, θ, φ) in rot_list:   
-        qc.append(G(θ,φ), [j, k])         # ↑ block
-        qc.append(G(θ,φ), [j+L, k+L])     # ↓ block
-
-    # qc.barrier()
-
+    L  = qc.num_qubits // 2 # Each site has 2 qubits (↑,↓)
+    
     # Re-order from (↑...↑ ↓...↓) to (↑,↓)(↑,↓)...(↑,↓) 
     reorder_qubits(qc, L)
 
@@ -91,8 +73,9 @@ def QuenchSpectroscopyCircuit(Q_mat: np.ndarray, dt: float, J: float,
     return qc
 
 
-def QuenchSpectroscopyCircuits(Q_mat: np.ndarray, dt: float, J: float,
-                              U: float, Max_N_Trotter: int, verbose=False) -> list[QuantumCircuit]:
+# Build an array of circuits for up to Max_N_Trotter time steps.
+def QuenchSpectroscopyCircuits( initial_state: QuantumCircuit, dt: float, J: float,
+                                    U: float, Max_N_Trotter: int, verbose=False) -> list[QuantumCircuit]:
     """
     Build an array of circuits for up to Max_N_Trotter time steps.
 
@@ -105,7 +88,7 @@ def QuenchSpectroscopyCircuits(Q_mat: np.ndarray, dt: float, J: float,
     for time_step in range(Max_N_Trotter):
         if verbose:
             print("Time step: ", time_step)
-        qc = QuenchSpectroscopyCircuit(Q_mat, dt, J, U, time_step)
+        qc = QuenchSpectroscopyCircuit(initial_state, dt, J, U, time_step)
         qc = qc.decompose().decompose() # To make it work with aer
         qc.measure_all()
         circuits.append(qc)

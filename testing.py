@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from gates.DGA_ansatz import DGA_ansatz
+from circuit.DGA_ansatz import DGA_ansatz
 
 from qiskit_aer.primitives import EstimatorV2
 from qiskit_algorithms import VQE

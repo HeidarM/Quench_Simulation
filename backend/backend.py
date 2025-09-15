@@ -31,8 +31,11 @@ class BackendConfig:
     transpile_kwargs: Optional[Dict[str, Any]] = None
 
     # sampling / estimation
-    shots: Optional[int] = None          # if None on Aer Sampler → quasi-probs
+    shots: Optional[int] = None                 # if None on Aer Sampler → quasi-probs
     default_precision: Optional[float] = 1e-2  # Aer Estimator "shots-like"
+
+    aer_method: Optional[str] = None               # e.g. "matrix_product_state", "statevector", ...
+    aer_options: Optional[Dict[str, Any]] = None  # any other Aer options (e.g. mps params)
 
     # runtime options for IBM (optional)
     runtime_options: Optional[Dict[str, Any]] = None
@@ -45,6 +48,12 @@ class BackendManager:
 
         if config.kind == "aer":
             self.backend: BackendV2 = AerSimulator()
+            
+            if config.aer_method is not None:
+                self.backend.set_options(method=config.aer_method)
+            if config.aer_options:
+                self.backend.set_options(**config.aer_options)
+
             self._sampler = AerSampler.from_backend(self.backend)
             
             estimator_options = {}
@@ -76,11 +85,30 @@ class BackendManager:
             raise ValueError("BackendConfig.kind must be 'aer' or 'ibm'")
 
     # Transpile to the backend basis
+    # def transpile(self, circuits: Union[QuantumCircuit, Sequence[QuantumCircuit]]) \
+    #         -> Union[QuantumCircuit, Sequence[QuantumCircuit]]:
+    #     tk = self.config.transpile_kwargs or {}
+    #     return transpile(circuits, backend=self.backend,
+    #                      optimization_level=self.config.transpile_ol, **tk)
+
     def transpile(self, circuits: Union[QuantumCircuit, Sequence[QuantumCircuit]]) \
-            -> Union[QuantumCircuit, Sequence[QuantumCircuit]]:
+        -> Union[QuantumCircuit, Sequence[QuantumCircuit]]:
         tk = self.config.transpile_kwargs or {}
+        
+        # To avoid issues with large systems
+        if self.config.kind == "aer":
+            # Simulator: no backend
+            return transpile(
+            circuits,
+            optimization_level=self.config.transpile_ol,
+            basis_gates=['u', 'cx'],
+            coupling_map=None,
+            **tk,
+        )
+        
+        # IBM hardware: device-aware transpilation
         return transpile(circuits, backend=self.backend,
-                         optimization_level=self.config.transpile_ol, **tk)
+                     optimization_level=self.config.transpile_ol, **tk)
 
     def sampler(self):
         return self._sampler

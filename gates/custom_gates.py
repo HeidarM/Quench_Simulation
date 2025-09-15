@@ -64,7 +64,7 @@ def G_real(theta_val: float) -> Gate:
     # Define the circuit
     qc.rz(-np.pi/2, 1)                          # e^{iπ/4 Z_2} = rz(-pi/2)
     #TODO: should this be N(qc, 0, 1, -theta/2, -theta/2, 0)? Double check
-    N(qc, 0, 1, theta/2, theta/2, 0)
+    N(qc, 0, 1, -theta/2, -theta/2, 0)
     qc.rz(np.pi/2, 1)                           # e^{-iπ/4 Z_2} = = rz(pi/2)
 
     # Assign the numeric value but retain the symbolic display

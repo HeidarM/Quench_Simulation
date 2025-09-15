@@ -2,7 +2,7 @@
 
 import yaml
 import argparse
-import numpy as np
+# import numpy as np
 
 from post_process import post_process, compute_Sx_i
 from utils.utils import get_job_by_number, print_job_summary
@@ -12,13 +12,13 @@ from backend.backend import BackendConfig
 from runners.run_quench import run_QuenchSpectroscopy
 
 
-def generate_Q_mat(L, N_f):
-    # Wave function for OBC
-    j  = np.arange(L)                      # site indices 0 … L−1
-    n  = np.arange(1, N_f + 1)[:, None]    # mode numbers 1 … N_f (column)
-    k  = n * np.pi / (L + 1)               # quantised momenta (N_f×1)
-    Q_mat  = np.sqrt(2.0 / (L + 1)) * np.sin(k * (j + 1))
-    return Q_mat
+# def generate_Q_mat(L, N_f):
+#     # Wave function for OBC
+#     j  = np.arange(L)                      # site indices 0 … L−1
+#     n  = np.arange(1, N_f + 1)[:, None]    # mode numbers 1 … N_f (column)
+#     k  = n * np.pi / (L + 1)               # quantised momenta (N_f×1)
+#     Q_mat  = np.sqrt(2.0 / (L + 1)) * np.sin(k * (j + 1))
+#     return Q_mat
 
 def main(config):
     
@@ -40,13 +40,13 @@ def main(config):
     dt, J, U = config["dt"], config["J"], config["U"]
     N_Trotter = config["N_Trotter"]
     N_f = int(L * config.get("fill_fraction", 1.0 / 3))
-    Q_mat = generate_Q_mat(L, N_f)
+    # Q_mat = generate_Q_mat(L, N_f)
 
     task = config["task"]
     # -------- simulate --------
     if task == "simulate":
         backend_config = BackendConfig(kind="aer", transpile_ol=0, default_precision=1e-2)
-        job, results = run_QuenchSpectroscopy(Q_mat, dt, J, U, N_Trotter, backend_config=backend_config)
+        job, results = run_QuenchSpectroscopy(L, N_f, 0, dt, J, U, N_Trotter, backend_config=backend_config)
 
         # Extract counts and shot info for each time step
         counts_list = []

@@ -8,7 +8,7 @@ from qiskit_algorithms.optimizers import SPSA
 from qiskit_aer import AerSimulator
 from qiskit import transpile
 
-from gates.DGA_ansatz import DGA_ansatz
+from circuit.DGA_ansatz import DGA_ansatz
 from backend.backend import BackendManager, BackendConfig
 
 # -------- Free fermion Hamiltonian --------
@@ -46,7 +46,7 @@ def free_fermion_H0(L: int, J: float = 1.0) -> SparsePauliOp:
 
 
 # ---------------- VQE for DGA states  ----------------
-def run_VQE_for_DGA(L: int, N_f: int, n_layers: int, backend_config: BackendConfig, verbose: bool = False):
+def run_VQE_for_DGA(L: int, N_f: int, n_layers: int, backend_config: BackendConfig, max_iterations:int = 400, verbose: bool = False):
     if verbose:
         print(f"Running VQE for DGA with L={L}, N_f={N_f}, n_layers={n_layers} on {backend_config.kind} backend")
     
@@ -54,11 +54,12 @@ def run_VQE_for_DGA(L: int, N_f: int, n_layers: int, backend_config: BackendConf
     ansatz, theta = DGA_ansatz(L=L, N_f=N_f, n_layers=n_layers)
     H0 = free_fermion_H0(L, J=1.0)
 
-    optimizer = SPSA(maxiter=200)
+    optimizer = SPSA(maxiter=max_iterations)
     init = [0.1] * len(theta) # np.zeros(len(theta))
 
     if verbose:
         print("Running VQE on DGA state...")
+
     # run VQE
     result = backend_manager.run_vqe(ansatz=ansatz,
                                   hamiltonian=H0,

@@ -9,12 +9,12 @@ from qiskit_aer import AerSimulator
 from qiskit import transpile
 
 
-from gates.DGA_ansatz import DGA_ansatz
-from runners.run_VQE_DGA import run_VQE_for_DGA
+from circuit.DGA_ansatz import DGA_ansatz
+
 from runners.run_quench import run_QuenchSpectroscopy
 
 from backend.backend import BackendConfig
-
+# from runners.run_quench import generate_Q_mat
 
 
 # def _pauli_label(n, ops):
@@ -84,18 +84,36 @@ if __name__ == "__main__":
     #     print(bound.draw(output="text"))
 
     
-    from main import *
+    # from main import *
     
-    backend_config = BackendConfig(kind="aer", transpile_ol=0, default_precision=1e-2)
-    run_VQE_for_DGA(L=6, N_f=4, n_layers=2, backend_config=backend_config, verbose=True)
+    # backend_config = BackendConfig(kind="aer",  transpile_ol=0, default_precision=1e-2, aer_method="matrix_product_state")
+    # backend_config = BackendConfig(
+    # kind="aer",
+    # aer_method="matrix_product_state",
+    # aer_options={
+    #     "max_parallel_threads": 0,
+    #     "max_parallel_experiments": 0,
+    #     "runtime_parameter_bind_enable": True,
+    #     "mps_lapack": True,
+    #     "precision": "single",
+    #     # For Sampler runs with measure-all-at-end:
+    #     # "mps_sample_measure_algorithm": "mps_probabilities",
+    #     # Optional:
+    #     # "max_parallel_shots": 0,
+    #     # "mps_swap_direction": "mps_swap_right",
+    #     # "max_memory_mb": -1,
+    #     # "seed_simulator": 1234,
+    # },)
+
+    # run_VQE_for_DGA(L=30, N_f=10, n_layers=2, backend_config=backend_config, max_iterations=100, verbose=True)
 
 
-    Q_mat = generate_Q_mat(L=6, N_f=4)
+    # Q_mat = generate_Q_mat(L=6, N_f=4)
     backend_config = BackendConfig(kind="aer", transpile_ol=0, shots=None)  # None → quasi-probs
-    job, results = run_QuenchSpectroscopy(Q_mat, 0.1, 1, 0.2, 10, backend_config)
+    job, results = run_QuenchSpectroscopy(L=10, N_f=4, n_layers=2, dt=0.1, J=1.0, U=0.2, N_Trotter=10, backend_config=backend_config)
 
-    print("Job:", job)
-    print("Job id:", job.job_id())
+    # print("Job:", job)
+    # print("Job id:", job.job_id())
     # for result in results:
     #     print("Counts:", result.join_data().get_counts())
     #     print()
