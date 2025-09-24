@@ -35,7 +35,7 @@ python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
 
 ### DGA state and optimization
 #### VQE
-The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determinant state and uses Variational Quantum Eigensolver (VQE) to optimize the parameters (classically). This has been implemented in `run_VQE_for_DGA` function in `runners/run_VQE_DGA.py`. I in `utils/VQE_convergence.py` I have implemented functions for more advanced step sizes, for faster convergence, class to check fidelity for checking convergence and early terminaion, and a class to track and live plot progress. In `run_VQE_for_DGA`, many of the details can be controlled.
+The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determinant state and uses Variational Quantum Eigensolver (VQE) to optimize the parameters (classically). This has been implemented in `run_VQE_for_DGA` function in `runners/run_VQE_DGA.py`. In `utils/VQE_convergence.py` I have implemented functions for more advanced step sizes, for faster convergence, class to check fidelity for checking convergence and early terminaion, and a class to track and live plot progress. In `run_VQE_for_DGA`, many of the details can be controlled.
 
 See `tests/fidelity_test_DGA_VQE.py` for usage of these VQE functionality.
 
@@ -47,17 +47,17 @@ There is a minor bug in the VQE class of qiskit-algorithms version 0.4.0. The VQ
 Instead of using VQE, as in the paper, I found a significantly faster way to maximize fidelity of DGA state and the target Slaters determinant state.
 
 Take states
-$$|psi_A\rangle = a_1^\dagger \cdots a_{N_f}^\dagger\ket 0\rangle$$,
+$$|\psi_A\rangle = a_1^\dagger \cdots a_{N_f}^\dagger\ket 0\$$,
 where
-$$a_i^\dagger = sum_x A_{xi} c_x^\dagger.$$
+$$a_i^\dagger = \sum_x A_{xi} c_x^\dagger.$$
 Here $A_{xi}$ is a matrix with the occupied orbitals.
 
 One can show that the overlap of two such states are given by
-$$\langle\psi_A | \psi_B\rangle = \det(A^T B).$$
+$$\langle\psi_A | \psi_B\rangle = \det(A^\dagger B).$$
 
-For the Slaters state $A = Q$ (where $Q$ is the orbital matrix usually used in the litterature). While for the DGA state $B$ can be built out of bricks of Givens rotations. 
+For the Slaters state $A^T = Q$ (where $Q$ is the orbital matrix usually used in the litterature). While for the DGA state $B$ can be built out of bricks of Givens rotations. 
 
-The computation of fidelity using this, is much faster than using qiskit circuits. As seen in `tests/faster_fidelity_test.py`, for $L=12$ and $n_layer = 1$ DGA, it's over 300,000 times faster than qiskit circuits (simulated with aer).
+The computation of fidelity using this, is much faster than using qiskit circuits. As seen in `tests/faster_fidelity_test.py`, for `L = 12` and `n_layer = 1` DGA, it's over 300,000 times faster than qiskit circuits (simulated with aer).
 
 This determinant can be very efficiently maximized, almost instantly for any size. In `utils/optimize_fidelity.py` this is implemented using scipy.optimize and the [L-BFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS) algorithm. To ensure global minimum is found, I use a multi-start strategy, with a Sobol sequence to distribute initial points. The codes runs multi-threaded.
 
