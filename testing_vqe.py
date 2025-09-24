@@ -9,7 +9,7 @@ from qiskit_aer import AerSimulator
 from qiskit import transpile
 
 
-from circuit.DGA_ansatz import DGA_ansatz
+from circuit.DGA_ansatz_circuit import DGA_ansatz_circuit
 
 from runners.run_quench import run_QuenchSpectroscopy
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # n_layers = 1
 
     # # Build symbolic ansatz
-    # ansatz, theta = DGA_ansatz(L=L, N_f=N_f, n_layers=n_layers)
+    # ansatz, theta = DGA_ansatz_circuit(L=L, N_f=N_f, n_layers=n_layers)
 
     # backend = AerSimulator()
     # ansatz = transpile(ansatz, backend=backend, optimization_level=2)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     # Q_mat = generate_Q_mat(L=6, N_f=4)
     backend_config = BackendConfig(kind="aer", transpile_ol=0, shots=None)  # None → quasi-probs
-    job, results = run_QuenchSpectroscopy(L=10, N_f=4, n_layers=2, dt=0.1, J=1.0, U=0.2, N_Trotter=10, backend_config=backend_config)
+    job, results = run_QuenchSpectroscopy(L=8, N_f=4, n_layers=2, dt=0.1, J=1.0, U=0.2, N_Trotter=10, backend_config=backend_config)
 
     # print("Job:", job)
     # print("Job id:", job.job_id())

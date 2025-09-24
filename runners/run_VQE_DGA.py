@@ -1,15 +1,17 @@
-# circuit/VQE_DGA.py
+# runners/run_VQE_DGA.py
 
 import numpy as np
-from qiskit.quantum_info import SparsePauliOp
-from qiskit_aer.primitives import EstimatorV2
-from qiskit_algorithms import VQE
-from qiskit_algorithms.optimizers import SPSA
-from qiskit_aer import AerSimulator
-from qiskit import transpile
 
-from circuit.DGA_ansatz import DGA_ansatz
+from qiskit.quantum_info import SparsePauliOp
+from qiskit_algorithms.optimizers import SPSA, COBYLA, L_BFGS_B, SLSQP, ADAM, QNSPSA, NFT
+
+from circuit.DGA_ansatz_circuit import DGA_ansatz_circuit
 from backend.backend import BackendManager, BackendConfig
+from utils.VQE_convergence import SPSAConvergence, VQETrackProgressCallback, KeepBestCallback, cosine_anneal_with_restarts, powerlaw_with_restarts
+from circuit.slater_det_circuit import generate_Q_mat
+
+
+
 
 # -------- Free fermion Hamiltonian --------
 def _pauli_label(n, ops):
@@ -43,33 +45,97 @@ def free_fermion_H0(L: int, J: float = 1.0) -> SparsePauliOp:
     return SparsePauliOp.from_list(list(zip(terms, coeffs)))
 
 
-
-
 # ---------------- VQE for DGA states  ----------------
-def run_VQE_for_DGA(L: int, N_f: int, n_layers: int, backend_config: BackendConfig, max_iterations:int = 400, verbose: bool = False):
+def run_VQE_for_DGA(L: int, N_f: int, n_layers: int, backend_config: BackendConfig,
+                    max_iterations:int = 400, fidelity_goal: float = 0.9, history_window: int = 30, init: list | None = None,
+                    verbose: bool = False, live_plot: bool = False,
+                    print_best_energy: bool = False, print_best_parameter: bool = False, print_best_fidelity: bool = False
+                    ):
     if verbose:
         print(f"Running VQE for DGA with L={L}, N_f={N_f}, n_layers={n_layers} on {backend_config.kind} backend")
     
     backend_manager = BackendManager(backend_config)
-    ansatz, theta = DGA_ansatz(L=L, N_f=N_f, n_layers=n_layers)
+    ansatz, theta = DGA_ansatz_circuit(L=L, N_f=N_f, n_layers=n_layers)
     H0 = free_fermion_H0(L, J=1.0)
 
-    optimizer = SPSA(maxiter=max_iterations)
-    init = [0.1] * len(theta) # np.zeros(len(theta))
+    Q = generate_Q_mat(L, N_f)
+    
+    termination_checker = SPSAConvergence(n_layers=n_layers, Q = Q, fidelity_goal=fidelity_goal)
 
-    if verbose:
-        print("Running VQE on DGA state...")
+    # Causes one extra evaluations per iteration, for SPSA the termination checker will do this task
+    keepBest = None #KeepBestCallback()
+
+    eta, eps = cosine_anneal_with_restarts(
+                                            max_iter=max_iterations,
+                                            lr_max=0.02,  lr_min=0.0002,   
+                                            eps_max=0.03, eps_min=0.001,  
+                                            T0=150, T_mult=1.3)
+
+
+    # eta, eps = powerlaw_with_restarts(
+    #                                     max_iter=max_iterations,
+    #                                     A=0, a=0.045, alpha=0.360,
+    #                                     c=0.01, gamma=0.05101,
+    #                                     T0=150, T_mult=1.3)
+
+
+    optimizer = SPSA(
+        maxiter=max_iterations,
+        learning_rate=eta,
+        perturbation=eps,
+        blocking=True,               # helpful: reject steps that increase too much
+        allowed_increase=1e-2,       # tweak based on noise scale
+        callback=keepBest,             
+        termination_checker=termination_checker
+    )
+
+    
+    if init is None:
+        init = np.random.rand(len(theta))
+
+
+    # To track progress and live plot energy and fidelity
+    track_progress_callback = VQETrackProgressCallback(history_window=history_window,
+                                                       live_plot = live_plot,
+                                                       print_best_energy = print_best_energy,
+                                                       print_best_parameter = print_best_parameter,
+                                                       print_best_fidelity = print_best_fidelity,
+                                                       Q=Q,
+                                                       n_layers=n_layers)
+
 
     # run VQE
     result = backend_manager.run_vqe(ansatz=ansatz,
-                                  hamiltonian=H0,
-                                  optimizer=optimizer,
-                                  initial_point=init)
+                                     hamiltonian=H0,
+                                     optimizer=optimizer,
+                                     initial_point=init,
+                                     callback=track_progress_callback
+                                     )
+    
+    
+    # Overwrite with the best-so-far point if it's better than the optimizer's return
+    current_energy = float(np.real(result.eigenvalue))
+    if track_progress_callback.min_energy < current_energy:
+        result.optimal_point = track_progress_callback.min_energy_parameter
+        result.eigenvalue = track_progress_callback.min_energy
+
+    
 
     if verbose:
+        # Get how many iterations/evaluations were actually used for convergence
+        used_iters = getattr(getattr(result, "optimizer_result", None), "nit", None)
+        used_evals = (
+        getattr(result, "optimizer_evals", None) or
+        getattr(result, "cost_function_evals", None) or
+        getattr(getattr(result, "optimizer_result", None), "nfev", None))
+
         print()
         print("Number of params:", len(theta))
         print("Optimized energy  <H0>:", float(np.real(result.eigenvalue)))
+        if used_iters is not None:
+            print("Optimizer iterations used:", used_iters)
+        if used_evals is not None:
+            print("Function evaluations:", used_evals)
         print("Optimal parameters:", result.optimal_point)
 
     return result, ansatz, theta

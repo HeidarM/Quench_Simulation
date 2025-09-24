@@ -7,7 +7,7 @@ from typing import Optional, Dict, Any, Sequence, Union
 from qiskit import transpile, QuantumCircuit
 from qiskit.providers.backend import BackendV2
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_algorithms import VQE
+# from qiskit_algorithms import VQE
 
 # simulators
 from qiskit_aer import AerSimulator
@@ -16,6 +16,10 @@ from qiskit_aer.primitives import SamplerV2 as AerSampler, EstimatorV2 as AerEst
 # IBM hardware
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_ibm_runtime import SamplerV2 as IBMSampler, EstimatorV2 as IBMEstimator
+
+# Bug fixed VQE class
+from BUG_FIXES.VQE_CALLBACK_BUG_FIX import VQE_CALLBACK_BUG_FIX as VQE
+
 
 
 
@@ -84,12 +88,6 @@ class BackendManager:
         else:
             raise ValueError("BackendConfig.kind must be 'aer' or 'ibm'")
 
-    # Transpile to the backend basis
-    # def transpile(self, circuits: Union[QuantumCircuit, Sequence[QuantumCircuit]]) \
-    #         -> Union[QuantumCircuit, Sequence[QuantumCircuit]]:
-    #     tk = self.config.transpile_kwargs or {}
-    #     return transpile(circuits, backend=self.backend,
-    #                      optimization_level=self.config.transpile_ol, **tk)
 
     def transpile(self, circuits: Union[QuantumCircuit, Sequence[QuantumCircuit]]) \
         -> Union[QuantumCircuit, Sequence[QuantumCircuit]]:
@@ -128,10 +126,10 @@ class BackendManager:
 
     # Run estimator on one or more (circuit, operator) pairs
     def run_vqe(self, ansatz: QuantumCircuit, hamiltonian: SparsePauliOp,
-                optimizer, initial_point):
+                optimizer, initial_point, callback=None):
         ansatz_t = self.transpile(ansatz)
         vqe = VQE(estimator=self._estimator, ansatz=ansatz_t,
-                  optimizer=optimizer, initial_point=initial_point)
+                  optimizer=optimizer, initial_point=initial_point, callback=callback)
         return vqe.compute_minimum_eigenvalue(hamiltonian)
 
     # Retrieve a Sampler/Estimator job result by job id

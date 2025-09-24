@@ -6,7 +6,7 @@ import numpy as np
 from backend.backend import BackendConfig, BackendManager
 from circuit.circuit_builder import QuenchSpectroscopyCircuits
 from runners.run_VQE_DGA import run_VQE_for_DGA
-from circuit.slater_det_state import slaters_determinant_state, generate_Q_mat
+from circuit.slater_det_circuit import slaters_determinant_circuit, generate_Q_mat
 
 from utils.utils import append_to_job_log
 
@@ -41,7 +41,7 @@ def run_QuenchSpectroscopy(L: int, N_f: int,
     else:
         print("Using Slater determinant state")
         Q_mat = generate_Q_mat(L, N_f)
-        initial_state = slaters_determinant_state(Q_mat)
+        initial_state = slaters_determinant_circuit(Q_mat)
 
     circs = QuenchSpectroscopyCircuits(initial_state=initial_state,
                                            dt=dt, J=J, U=U, Max_N_Trotter=N_Trotter, verbose=False)
