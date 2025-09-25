@@ -32,7 +32,7 @@ python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
 - Parameters are hardcoded in classical_simulation/1d_Fermi_Hubbard_quench_spectroscopy.py
 - The code uses Time-Dependent Variational Principle (TDVP) with Matrix Product States (MPS)
 
-<p>
+<p align = center>
   <img src="classical_simulation/Lg_size2.png" alt="Quench Simulation" width="400"/>
 </p>
 
@@ -44,7 +44,7 @@ The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determ
 
 See `tests/fidelity_test_DGA_VQE.py` for usage of these VQE functionality.
 
-<p>
+<p align = center>
   <img src="optimized_fidelity.png" alt="Fidelity vs L" width="300"/>
 </p>
 
