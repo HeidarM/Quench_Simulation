@@ -7,9 +7,6 @@ from utils.optimize_fidelity import optimize_thetas_multistart
 from circuit.slater_det_circuit import generate_Q_mat
 from utils.fast_fidelity import dga_overlap_and_fidelity
 
-from circuit.DGA_ansatz_circuit import _evenly_spaced_sites
-
-
 
 
 if __name__ == "__main__":
@@ -30,7 +27,5 @@ if __name__ == "__main__":
             # optimize
             best_theta, best_fidelity, res = optimize_thetas_multistart(Q, n_layers, seed=1, n_starts=64, maxiter=1000)
             
-            # overlap, fidelity = dga_overlap_and_fidelity(Q, thetas_opt, n_layers)
-
             print(f"layers={n_layers:2d}  iters={res.nit:3d}  F={best_fidelity}")
             # print("thetas:", best_theta)

@@ -1,8 +1,10 @@
 task: simulate  # simulate | run_qc | post_process
 
-L: 10
+L: 6
 dt: 0.25
 J: 1.0
 U: -3.0
 N_Trotter: 10
-fill_fraction: 0.333333333
+fill_fraction: 0.6666666666666666
+initial_state: DGA # slater | DGA (with DGA you need n_layers as well)
+n_layers: 2

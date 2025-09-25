@@ -19,7 +19,7 @@ the /configs folder contains a few examples.
 
 type of tasks: simulate | run_qc | post_process
   - simulate: simulates quantum computer locally
-  - run_qc: run on IBM quantum computer, will store job id and data used in job_log.jsonl file
+  - run_qc: run on IBM quantum computer, will store job id and data used in `job_log.jsonl` file
   - post_process: post process code already run on IBM quantum computer by providing job_id or job_num (from the job_log.jsonl)
 
 Post process computes $\langle S^x_i\rangle$ and Quench Spectral Function $Q(\omega,k)$ from raw measurement bitstrings
@@ -60,4 +60,21 @@ For the Slaters state $A^T = Q$ (where $Q$ is the orbital matrix usually used in
 The computation of fidelity using this, is much faster than using qiskit circuits. As seen in `tests/faster_fidelity_test.py`, for `L = 12` and `n_layer = 1` DGA, it's over 300,000 times faster than qiskit circuits (simulated with aer).
 
 This determinant can be very efficiently maximized, almost instantly for any size. In `utils/optimize_fidelity.py` this is implemented using scipy.optimize and the [L-BFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS) algorithm. To ensure global minimum is found, I use a multi-start strategy, with a Sobol sequence to distribute initial points. The codes runs multi-threaded.
+
+## Jobs run on real quantum computer
+Jobs run on real quantum computer (not simulator), is logged in `job_log.jsonl`. In order to print a table of jobs and details run
+
+```bash
+python main.py --jobs
+```
+
+Example output (though backend will be ibm_torino or other ibm hardware)
+```bash
+#  backend        L   N_f  dt     J      U       N_Trot  shots  state   layers  fidelity  job_id                                timestamp                 
+-  -------------  --  ---  -----  -----  ------  ------  -----  ------  ------  --------  ------------------------------------  --------------------------
+1  aer_simulator  8   5    0.250  1.000  -3.000  10      1024   DGA     2       0.874     3486039f-f449-446a-8f53-1e0b37200637  2025-09-25T14:59:26.918444
+2  aer_simulator  10  6    0.250  1.000  -3.000  10      1024   DGA     2       0.829     8e9f19a6-b90d-4745-bd1c-7b1092441f51  2025-09-25T14:59:47.132569
+3  aer_simulator  6   4    0.250  1.000  -3.000  10      1024   DGA     2       0.915     73c47461-ca55-4c1c-9776-a5ae1e882ec7  2025-09-25T15:00:03.587490
+4  aer_simulator  6   4    0.250  1.000  -3.000  10      1024   slater  0       1.000     11b07908-d0cc-4c58-a2e7-3a878e988fb2  2025-09-25T15:09:46.337316
+```
 

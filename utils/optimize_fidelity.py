@@ -79,6 +79,6 @@ def optimize_thetas_multistart(Q, n_layers, n_starts=64, maxiter=500, seed=0, n_
                 best = res
 
     
-    best_theta = best.x
+    best_theta = np.asarray(best.x, dtype=float)
     best_fidelity = dga_overlap_and_fidelity(Q, best_theta, n_layers)[1]
     return best_theta, best_fidelity, best

@@ -118,11 +118,9 @@ class BackendManager:
 
     # Run sampler on one or more circuits
     def run_sampler(self, circuits: Sequence[QuantumCircuit], shots: Optional[int] = None):
-        # Transpile circuits to backend
-        circ_t = self.transpile(circuits)
         if shots is not None:
-            return self._sampler.run(circ_t, shots=shots)
-        return self._sampler.run(circ_t)
+            return self._sampler.run(circuits, shots=shots)
+        return self._sampler.run(circuits)
 
     # Run estimator on one or more (circuit, operator) pairs
     def run_vqe(self, ansatz: QuantumCircuit, hamiltonian: SparsePauliOp,

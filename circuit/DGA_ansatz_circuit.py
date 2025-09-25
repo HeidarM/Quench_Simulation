@@ -49,7 +49,7 @@ def DGA_ansatz_circuit(L: int, N_f: int, n_layers: int, maximal_spread: bool = T
             qc.x(q)       # ↑ sector
             qc.x(q + L)   # ↓ sector
 
-    qc.barrier()
+    # qc.barrier()
 
 
     # --- Parameters ---
