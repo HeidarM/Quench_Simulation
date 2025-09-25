@@ -1,4 +1,4 @@
-# fidelity_test_slater.py
+# tests/fidelity_test_slater.py
 # run using python -m tests.fidelity_test_slater
 
 from qiskit.quantum_info import Statevector

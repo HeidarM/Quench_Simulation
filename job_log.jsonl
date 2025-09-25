@@ -1,4 +1,1 @@
-{"job_id": "d1nu1015jdrc73dqvd00", "backend": "Unkown", "L": 60, "N_f": 20, "dt": 0.25, "J": 1.0, "U": -3.0, "N_Trotter": 30, "job_num": 1, "timestamp": "2025-07-14T14:00:00", "shots": null}
-{"job_id": "d1nt3f76d0hc73b6fu30", "backend": "Unkown", "L": 30, "N_f": 10, "dt": 0.25, "J": 1.0, "U": -3.0, "N_Trotter": 20, "job_num": 2, "timestamp": "2025-07-14T14:05:00", "shots": null}
-{"job_id": "d1ntiqr3rr0s73bfmojg", "backend": "Unkown", "L": 32, "N_f": 10, "dt": 0.25, "J": 1.0, "U": -3.0, "N_Trotter": 50, "job_num": 3, "timestamp": "2025-07-14T14:10:00", "shots": null}
-{"job_id": "d1qjo2h5jdrc73du4mjg", "backend": "ibm_torino", "L": 30, "N_f": 9, "dt": 0.25, "J": 1.0, "U": -3.0, "N_Trotter": 10, "shots": 1024, "job_num": 4, "timestamp": "2025-07-14T18:19:07.178515"}
+{"job_id": "d3alasfc8jls73dohgb0", "backend": "ibm_torino", "L": 12, "N_f": 8, "dt": 0.25, "J": 1.0, "U": -3.0, "N_Trotter": 10, "shots": 1024, "initial_state": "DGA", "n_layers": 2, "initial_state fidelity": 0.7101229964606758, "job_num": 1, "timestamp": "2025-09-25T15:45:52.828108"}

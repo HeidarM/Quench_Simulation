@@ -32,12 +32,22 @@ python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
 - Parameters are hardcoded in classical_simulation/1d_Fermi_Hubbard_quench_spectroscopy.py
 - The code uses Time-Dependent Variational Principle (TDVP) with Matrix Product States (MPS)
 
+<p>
+  <img src="classical_simulation/Lg_size2.png" alt="Quench Simulation" width="400"/>
+</p>
+
+
 
 ### DGA state and optimization
 #### VQE
 The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determinant state and uses Variational Quantum Eigensolver (VQE) to optimize the parameters (classically). This has been implemented in `run_VQE_for_DGA` function in `runners/run_VQE_DGA.py`. In `utils/VQE_convergence.py` I have implemented functions for more advanced step sizes, for faster convergence, class to check fidelity for checking convergence and early terminaion, and a class to track and live plot progress. In `run_VQE_for_DGA`, many of the details can be controlled.
 
 See `tests/fidelity_test_DGA_VQE.py` for usage of these VQE functionality.
+
+<p>
+  <img src="optimized_fidelity.png" alt="Fidelity vs L" width="300"/>
+</p>
+
 
 ##### Bug in qiskit-algorithms 0.4.0
 There is a minor bug in the VQE class of qiskit-algorithms version 0.4.0. The VQE callback does not pass full list of parameters, it instead passes the first parameter only. in `BUG_FIXES/VQE_CALLBACK_BUG_FIX.py` I have fixed the bug locally, until it is fixed in qiskit-algorithms.
@@ -47,9 +57,13 @@ There is a minor bug in the VQE class of qiskit-algorithms version 0.4.0. The VQ
 Instead of using VQE, as in the paper, I found a significantly faster way to maximize fidelity of DGA state and the target Slaters determinant state.
 
 Take states
-$$|\psi_A\rangle = a_1^\dagger \cdots a_{N_f}^\dagger\ket 0\$$,
+$$
+|\psi_A\rangle = a_1^\dagger \cdots a_{N_f}^\dagger\ket 0,
+$$
 where
-$$a_i^\dagger = \sum_x A_{xi} c_x^\dagger.$$
+$$
+a_i^\dagger = \sum_x A_{xi} c_x^\dagger.
+$$
 Here $A_{xi}$ is a matrix with the occupied orbitals.
 
 One can show that the overlap of two such states are given by

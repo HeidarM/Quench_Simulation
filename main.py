@@ -12,9 +12,7 @@ from backend.backend import BackendConfig
 from runners.run_quench import run_QuenchSpectroscopy, LOG_FILE
 
 
-
-
-def input_parser(config):
+def config_parser(config):
     
     # If job number given, load data from job log instead of config file
     if "job_num" in config and config["task"].startswith("post_process"):
@@ -42,10 +40,13 @@ def input_parser(config):
     else:
         n_layers = 0 # For slater
 
+    # Read transpile optimization level (default: 0)
+    transpile_ol = int(config.get("transpile_optimization_level", 0))
+
     task = config["task"]
     # -------- simulate --------
     if task == "simulate":
-        backend_config = BackendConfig(kind="aer", transpile_ol=0, default_precision=1e-2)
+        backend_config = BackendConfig(kind="aer", transpile_ol=transpile_ol, default_precision=1e-2)
         job, results = run_QuenchSpectroscopy(L, N_f, n_layers, dt, J, U, N_Trotter, backend_config=backend_config)
 
         # Extract counts and shot info for each time step
@@ -73,7 +74,7 @@ def input_parser(config):
 
     # -------- run_qc --------
     elif task == "run_qc":
-        backend_config = BackendConfig(kind="ibm", transpile_ol=0, default_precision=1e-2)
+        backend_config = BackendConfig(kind="ibm", transpile_ol=transpile_ol, default_precision=1e-2)
         # job, results = run_QuenchSpectroscopy(Q_mat, dt, J, U, N_Trotter, backend_config=backend_config)
         job, results = run_QuenchSpectroscopy(L, N_f, n_layers, dt, J, U, N_Trotter, backend_config=backend_config)
 
@@ -82,6 +83,7 @@ def input_parser(config):
         post_process(config["job_id"], L, N_Trotter, dt)
     else:
         raise ValueError(f"Unknown task: {task}")
+
 
     
 
@@ -99,4 +101,4 @@ if __name__ == "__main__":
     with open(args.config, "r") as f:
         config = yaml.safe_load(f)
 
-    input_parser(config)
+    config_parser(config)

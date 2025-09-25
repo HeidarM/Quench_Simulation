@@ -1,4 +1,4 @@
-# faster_fidelity_test.py
+# tests/faster_fidelity_test.py
 # run using python -m tests.faster_fidelity_test
 
 import numpy as np

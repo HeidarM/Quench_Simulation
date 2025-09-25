@@ -1,4 +1,4 @@
-# particle_number_test.py
+# tests/particle_number_test.py
 # run using python -m tests.particle_number_test
 
 # Quick sanity check that number of fermions is as expected

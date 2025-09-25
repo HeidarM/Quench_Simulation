@@ -1,6 +1,7 @@
 # runners/run_quench.py
 
-import numpy as np
+from qiskit.transpiler.passes import RemoveBarriers
+from qiskit.transpiler import PassManager
 
 from backend.backend import BackendConfig, BackendManager
 from utils.utils import append_to_job_log, print_circuit_summary
@@ -9,6 +10,8 @@ from circuit.circuit_builder import QuenchSpectroscopyCircuits
 from circuit.slater_det_circuit import slaters_determinant_circuit, generate_Q_mat
 from circuit.DGA_ansatz_circuit import DGA_ansatz_circuit
 # from runners.run_VQE_DGA import run_VQE_for_DGA
+
+
 
 
 
@@ -58,9 +61,15 @@ def run_QuenchSpectroscopy(L: int, N_f: int,
                                            dt=dt, J=J, U=U, Max_N_Trotter=N_Trotter, verbose=False)
     backend_manager = BackendManager(backend_config)
     print("\nUsing backend: ", backend_manager.backend.name)
-        
+
+    print("Transpiling circuits for backend with optimization level {}...".format(backend_config.transpile_ol))
+
+    # Remove barriers to get better optimization
+    pm = PassManager([RemoveBarriers()])
+    circuits_no_barrier = pm.run(circuits)
+
     # Transpile circuits to backend
-    circuits_t = backend_manager.transpile(circuits)
+    circuits_t = backend_manager.transpile(circuits_no_barrier)
 
     # Submit job
     job = backend_manager.run_sampler(circuits_t, shots=backend_config.shots)
