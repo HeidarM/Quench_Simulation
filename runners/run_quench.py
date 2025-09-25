@@ -24,7 +24,7 @@ def run_QuenchSpectroscopy(L: int, N_f: int,
                            dt: float, J: float, U: float, N_Trotter: int, backend_config: BackendConfig):
    
     # TODO: Put this into config or input args
-    N_shots = 1024 
+    N_shots = 4096
 
     # Use DGA ansatz
     if n_layers > 0:
@@ -76,10 +76,12 @@ def run_QuenchSpectroscopy(L: int, N_f: int,
     print("\nJob submitted. Job id = ", job.job_id())
 
      # Aer returns results immediately; IBM returns a Runtime job
-    try:
-        results = job.result()  # works for Aer; on IBM this blocks until done
-    except Exception:
-        results = None
+    results = None
+    if backend_config.kind != "ibm":
+        try:
+            results = job.result()
+        except Exception as e:
+            print(f"Warning: could not retrieve immediate results: {e}")
 
 
     # Log the job information if run on IBM Quantum Hardware

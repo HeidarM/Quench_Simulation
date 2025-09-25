@@ -1,1 +1,0 @@
-{"job_id": "d3alasfc8jls73dohgb0", "backend": "ibm_torino", "L": 12, "N_f": 8, "dt": 0.25, "J": 1.0, "U": -3.0, "N_Trotter": 10, "shots": 1024, "initial_state": "DGA", "n_layers": 2, "initial_state fidelity": 0.7101229964606758, "job_num": 1, "timestamp": "2025-09-25T15:45:52.828108"}

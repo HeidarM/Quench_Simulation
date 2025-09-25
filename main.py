@@ -25,13 +25,15 @@ def config_parser(config):
         config.setdefault("J", job_data["J"])
         config.setdefault("U", job_data["U"])
         config.setdefault("N_Trotter", job_data["N_Trotter"])
-        config.setdefault("dt", job_data["dt"])
+        config.setdefault("T", job_data["T"])
         config.setdefault("job_id", job_data["job_id"])
 
     L = config["L"]
-    dt, J, U = config["dt"], config["J"], config["U"]
+    T, J, U = config["T"], config["J"], config["U"]
     N_Trotter = config["N_Trotter"]
     N_f = int(L * config.get("fill_fraction", 2.0 / 3)) # default: nf = 2/3
+    
+    dt = T / N_Trotter
 
     # Read initial state and n_layers (if field is empty, default: slater)
     initial_state = config.get("initial_state", "slater")

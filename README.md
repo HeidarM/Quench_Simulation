@@ -57,13 +57,9 @@ There is a minor bug in the VQE class of qiskit-algorithms version 0.4.0. The VQ
 Instead of using VQE, as in the paper, I found a significantly faster way to maximize fidelity of DGA state and the target Slaters determinant state.
 
 Take states
-$$
-|\psi_A\rangle = a_1^\dagger \cdots a_{N_f}^\dagger\ket 0,
-$$
+$$|\psi_A\rangle = a_1^\dagger \cdots a_{N_f}^\dagger\ket 0,$$
 where
-$$
-a_i^\dagger = \sum_x A_{xi} c_x^\dagger.
-$$
+$$a_i^\dagger = \sum_x A_{xi} c_x^\dagger.$$
 Here $A_{xi}$ is a matrix with the occupied orbitals.
 
 One can show that the overlap of two such states are given by
