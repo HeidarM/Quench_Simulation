@@ -27,15 +27,33 @@ def print_job_summary(job_num, log_file="job_log.jsonl"):
 
     print(f"\n Job #{job['job_num']} summary from {log_file}:")
     print("-" * 40)
-    print(f"  Job ID      : {job['job_id']}")
-    print(f"  Timestamp   : {job['timestamp']}")
-    print(f"  Backend     : {job['backend']}")
-    print(f"  System size : L = {job['L']}, N_f = {job['N_f']}")
-    print(f"  Trotter steps: {job['N_Trotter']}")
-    print(f"  Time step   : dt = {job['dt']}")
-    print(f"  Couplings   : J = {job['J']}, U = {job['U']}")
-    print(f"  Shots       : {job['shots']}")
+    print(f"  Job ID      \t: {job['job_id']}")
+    print(f"  Timestamp   \t: {job['timestamp']}")
+    print(f"  Backend     \t: {job['backend']}")
+    print(f"  System size \t: L = {job['L']}, N_f = {job['N_f']}")
+    print(f"  Trotter steps\t: {job['N_Trotter']}")
+    print(f"  Time duration\t: T = {job['T']}")
+    print(f"  Couplings   \t: J = {job['J']}, U = {job['U']}")
+    print(f"  Shots       \t: {job['shots']}")
+
+    # --- Added fields ---
+    init_state = job.get("initial_state", "")
+    n_layers = job.get("n_layers", "")
+    fidelity = job.get("initial_state fidelity", job.get("fidelity", ""))
+
+    # Format fidelity nicely if numeric
+    if isinstance(fidelity, (int, float)):
+        fidelity_str = f"{fidelity:.3f}"
+    else:
+        fidelity_str = str(fidelity) if fidelity != "" else ""
+
+    print(f"  Initial state\t: {init_state}")
+    print(f"  Layers      \t: {n_layers}")
+    print(f"  Fidelity    \t: {fidelity_str}")
+    # --- end added ---
+
     print("-" * 40)
+
 
 
 def append_to_job_log(entry, LOG_FILE):
@@ -112,7 +130,7 @@ def print_jobs_jsonl(LOG_FILE):
 
     # Sort by job_num if available and comparable
     try:
-        rows.sort(key=lambda r: (r["job_num"] is "", r["job_num"]))  # blanks last
+        rows.sort(key=lambda r: (r["job_num"] == "", r["job_num"]))  # blanks last
     except TypeError:
         pass  # mixed types, skip sorting
 
