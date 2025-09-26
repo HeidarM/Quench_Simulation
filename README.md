@@ -39,8 +39,8 @@ python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
 
 
 
-### DGA state and optimization
-#### VQE
+## DGA state and optimization
+### VQE
 The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determinant state and uses Variational Quantum Eigensolver (VQE) to optimize the parameters (classically). This has been implemented in `run_VQE_for_DGA` function in `runners/run_VQE_DGA.py`. In `utils/VQE_convergence.py` I have implemented functions for more advanced step sizes, for faster convergence, class to check fidelity for checking convergence and early terminaion, and a class to track and live plot progress. In `run_VQE_for_DGA`, many of the details can be controlled.
 
 See `tests/fidelity_test_DGA_VQE.py` for usage of these VQE functionality.
@@ -50,11 +50,11 @@ See `tests/fidelity_test_DGA_VQE.py` for usage of these VQE functionality.
 </p>
 
 
-##### Bug in qiskit-algorithms 0.4.0
+#### Bug in qiskit-algorithms 0.4.0
 There is a minor bug in the VQE class of qiskit-algorithms version 0.4.0. The VQE callback does not pass full list of parameters, it instead passes the first parameter only. in `BUG_FIXES/VQE_CALLBACK_BUG_FIX.py` I have fixed the bug locally, until it is fixed in qiskit-algorithms.
 
 
-#### Much faster DGA optimization
+### Much faster DGA optimization
 Instead of using VQE, as in the paper, I found a significantly faster way to maximize fidelity of DGA state and the target Slaters determinant state.
 
 Take states
@@ -72,7 +72,7 @@ The computation of fidelity using this, is much faster than using qiskit circuit
 
 This determinant can be very efficiently maximized, almost instantly for any size. In `utils/optimize_fidelity.py` this is implemented using scipy.optimize and the [L-BFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS) algorithm. To ensure global minimum is found, I use a multi-start strategy, with a Sobol sequence to distribute initial points. The codes runs multi-threaded.
 
-## Jobs run on real quantum computer
+## Logs of jobs on IBM quantum computer or local simulator
 Jobs run on real quantum computer are logged in `logs/job_log_ibm.jsonl`, while those run in local simulator are logged in `logs/job_log_simulation.jsonl`. The simulation runs also save the measurements.
 
 In order to print a table of jobs and details run
