@@ -18,9 +18,10 @@ python main.py --config config.yaml
 the /configs folder contains a few examples.
 
 type of tasks: simulate | run_qc | post_process
-  - simulate: simulates quantum computer locally
+  - simulate: simulates quantum computer locally (using Qiskit Aer)
   - run_qc: run on IBM quantum computer, will store job id and data used in `job_log.jsonl` file
-  - post_process: post process code already run on IBM quantum computer by providing job_id or job_num (from the job_log.jsonl)
+  - post_process: post process code already run on IBM quantum computer or in simulator by providing job_id or job_num and data_source (simulation or ibm)
+  
 
 Post process computes $\langle S^x_i\rangle$ and Quench Spectral Function $Q(\omega,k)$ from raw measurement bitstrings
 
@@ -72,19 +73,34 @@ The computation of fidelity using this, is much faster than using qiskit circuit
 This determinant can be very efficiently maximized, almost instantly for any size. In `utils/optimize_fidelity.py` this is implemented using scipy.optimize and the [L-BFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS) algorithm. To ensure global minimum is found, I use a multi-start strategy, with a Sobol sequence to distribute initial points. The codes runs multi-threaded.
 
 ## Jobs run on real quantum computer
-Jobs run on real quantum computer (not simulator), is logged in `job_log.jsonl`. In order to print a table of jobs and details run
+Jobs run on real quantum computer are logged in `logs/job_log_ibm.jsonl`, while those run in local simulator are logged in `logs/job_log_simulation.jsonl`. The simulation runs also save the measurements.
+
+In order to print a table of jobs and details run
 
 ```bash
-python main.py --jobs
+python main.py --jobs simulation
 ```
 
-Example output (though backend will be ibm_torino or other ibm hardware)
+Example output
 ```bash
-#  backend        L   N_f  dt     J      U       N_Trot  shots  state   layers  fidelity  job_id                                timestamp                 
--  -------------  --  ---  -----  -----  ------  ------  -----  ------  ------  --------  ------------------------------------  --------------------------
-1  aer_simulator  8   5    0.250  1.000  -3.000  10      1024   DGA     2       0.874     3486039f-f449-446a-8f53-1e0b37200637  2025-09-25T14:59:26.918444
-2  aer_simulator  10  6    0.250  1.000  -3.000  10      1024   DGA     2       0.829     8e9f19a6-b90d-4745-bd1c-7b1092441f51  2025-09-25T14:59:47.132569
-3  aer_simulator  6   4    0.250  1.000  -3.000  10      1024   DGA     2       0.915     73c47461-ca55-4c1c-9776-a5ae1e882ec7  2025-09-25T15:00:03.587490
-4  aer_simulator  6   4    0.250  1.000  -3.000  10      1024   slater  0       1.000     11b07908-d0cc-4c58-a2e7-3a878e988fb2  2025-09-25T15:09:46.337316
+#  backend        L   N_f  T      J      U      N_Trot  shots  state   layers  fidelity  job_id                                timestamp                 
+-  -------------  --  ---  -----  -----  -----  ------  -----  ------  ------  --------  ------------------------------------  --------------------------
+1  aer_simulator  12  8    3.000  1.000  3.000  6       4096   DGA     3       0.958     817c33e7-ac5d-4c18-b8d6-ffa20fcb1375  2025-09-26T15:17:12.277787
+2  aer_simulator  15  10   3.000  1.000  3.000  10      4096   DGA     3       0.881     84484459-8044-4fd0-a3b1-439e9f096f55  2025-09-26T15:56:49.040633
+3  aer_simulator  15  10   3.000  1.000  3.000  10      4096   slater  0       1.000     7165ec8d-214f-48ec-9660-add4bdb97e76  2025-09-26T16:36:43.242754
+4  aer_simulator  15  10   3.000  1.000  3.000  10      4096   DGA     4       0.999     d2a9248d-ca11-43ae-be86-612d4368e77e  2025-09-26T17:48:06.143863
 ```
 
+or
+
+```bash
+python main.py --jobs ibm
+```
+
+Example output
+```bash
+#  backend     L   N_f  T      J      U      N_Trot  shots  state  layers  fidelity  job_id                timestamp                 
+-  ----------  --  ---  -----  -----  -----  ------  -----  -----  ------  --------  --------------------  --------------------------
+1  ibm_torino  16  10   3.000  1.000  3.000  6       4096   DGA    3       0.864     d3apk6k86mts73dtts10  2025-09-25T20:48:46.998320
+2  ibm_torino  15  10   3.000  1.000  3.000  10      4096   DGA    3       0.881     d3aq9dc86mts73dtufmg  2025-09-25T21:23:17.803502
+```
