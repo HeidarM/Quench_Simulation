@@ -8,7 +8,6 @@ from qiskit_algorithms.optimizers import SPSA
 
 
 
-
 n_layers = 3
 L = 3
 N_f = 2

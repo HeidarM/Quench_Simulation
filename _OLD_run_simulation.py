@@ -11,7 +11,7 @@ from qiskit.quantum_info import Statevector
 from circuit.circuit_builder import QuenchSpectroscopyCircuits
 from qiskit_ibm_runtime import QiskitRuntimeService
 
-from post_process import compute_Sx_i
+from utils.post_process import compute_Sx_i
 from utils.plotting import plot_Sx_t_and_Qwk
 
 

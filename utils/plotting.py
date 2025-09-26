@@ -3,10 +3,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from utils.quench_spectroscopy import quench_spectral_function
+from utils.quench_spectral_function import quench_spectral_function
 
 
-def plot_Sx_t_and_Qwk(Sx_t, dt):
+def plot_Sx_t_and_Qwk(Sx_t, dt, omega_min=None, omega_max=None):
 
     Sx_t = np.array(Sx_t)  # Shape (N_Trotter, L)
 
@@ -31,12 +31,21 @@ def plot_Sx_t_and_Qwk(Sx_t, dt):
     # Plot spectral function Q(ω, k)
     im1 = axs[1].imshow(Q, origin='lower', aspect='auto',
                         extent=[k_vals[0], k_vals[-1], omega[0], omega[-1]],
-                        cmap='magma')
+                        cmap='Blues'#, interpolation='bilinear'
+                        )
     cbar1 = fig.colorbar(im1, ax=axs[1])
     cbar1.set_label("Spectral intensity")
     axs[1].set_xlabel("Lattice momentum $k$")
     axs[1].set_ylabel("Frequency $\\omega$")
     axs[1].set_title("Quench Spectral Function $Q(\\omega, k)$")
+
+    if (omega_min is not None) or (omega_max is not None):
+        # fall back to current limits if one bound is None
+        cur_min, cur_max = axs[1].get_ylim()
+        axs[1].set_ylim(
+            omega_min if omega_min is not None else cur_min,
+            omega_max if omega_max is not None else cur_max
+        )
 
     plt.tight_layout()
     plt.show()

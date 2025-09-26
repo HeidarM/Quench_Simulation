@@ -16,8 +16,8 @@ from circuit.DGA_ansatz_circuit import DGA_ansatz_circuit
 
 
 # For keeping a log over all jobs run and their parameters
-LOG_FILE = "job_log.jsonl"
-# LOG_FILE = "job_log_test.jsonl"
+LOG_FILE_IBM = "logs/job_log_ibm.jsonl"
+LOG_FILE_SIMULATION = "logs/job_log_simulation.jsonl"
 
 def run_QuenchSpectroscopy(L: int, N_f: int,
                            n_layers: int, # If > 0 use DGA ansatz; else use Slater det.
@@ -75,7 +75,7 @@ def run_QuenchSpectroscopy(L: int, N_f: int,
     job = backend_manager.run_sampler(circuits_t, shots=backend_config.shots)
     print("\nJob submitted. Job id = ", job.job_id())
 
-     # Aer returns results immediately; IBM returns a Runtime job
+    # Aer returns results immediately; IBM returns a Runtime job
     results = None
     if backend_config.kind != "ibm":
         try:
@@ -85,23 +85,38 @@ def run_QuenchSpectroscopy(L: int, N_f: int,
 
 
     # Log the job information if run on IBM Quantum Hardware
-    if backend_config.kind == "ibm":# or backend_config.kind == "aer":
-        job_entry = {
-                        "job_id": job.job_id(),
-                        "backend": backend_manager.backend.name,
-                        "L": L,
-                        "N_f": N_f,
-                        "T": int(dt * N_Trotter),
-                        "J": J,
-                        "U": U,
-                        "N_Trotter": N_Trotter,
-                        "shots": N_shots,
-                        "initial_state": "slater" if n_layers == 0 else "DGA",
-                        "n_layers": n_layers,
-                        "initial_state fidelity": best_fidelity if n_layers > 0 else 1,
-                    }
+    job_entry = {
+                "job_id": job.job_id(),
+                "backend": backend_manager.backend.name,
+                "L": L,
+                "N_f": N_f,
+                "T": int(dt * N_Trotter),
+                "J": J,
+                "U": U,
+                "N_Trotter": N_Trotter,
+                "shots": N_shots,
+                "initial_state": "slater" if n_layers == 0 else "DGA",
+                "n_layers": n_layers,
+                "initial_state fidelity": best_fidelity if n_layers > 0 else 1,
+            }
+    
+    # Save simulation data as well
+    if backend_config.kind == "aer" and results is not None:
+        # SamplerV2 results are an iterable; .join_data().get_counts() returns a dict
+        counts_list = [res.join_data().get_counts() for res in results]
+        shots_list = [sum(c.values()) for c in counts_list]
+        job_entry["counts"] = counts_list     # list[dict[str,int]]
+        job_entry["shots_list"] = shots_list  # list[int]
 
-        job_num = append_to_job_log(job_entry, LOG_FILE)
-        print(f"Logged job #{job_num}")
+
+    if backend_config.kind == "ibm":
+        job_num = append_to_job_log(job_entry, LOG_FILE_IBM)
+        print(f"Logged job #{job_num} in {LOG_FILE_IBM}")
+    elif backend_config.kind == "aer":
+        job_num = append_to_job_log(job_entry, LOG_FILE_SIMULATION)
+        print(f"Logged job #{job_num} in {LOG_FILE_SIMULATION}")
+    else:
+        raise ValueError(f"Unknown backend kind: {backend_config.kind}")
+
 
     return job, results

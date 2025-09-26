@@ -18,7 +18,7 @@ import matplotlib.gridspec as gridspec
 
 import scipy.fft as fft
 
-from utils.quench_spectroscopy import quench_spectral_function
+from utils.quench_spectral_function import quench_spectral_function
 
 
 
@@ -56,7 +56,7 @@ def apply_spin_quench(psi, j_site, theta):
     site = psi.sites[j_site]
 
     # Sx = ½ (Sp + Sm)
-    Sx = 0.5 * (site.Sp + site.Sm)                 # npc.Array, charge-neutral
+    Sx = 0.5 * (site.Sp + site.Sm)
 
     # Q = exp(i θ Sx) = cos(θ/2) I + 2i sin(θ/2) Sx
     Q = np.cos(theta/2.0) * site.Id + 2.0j * np.sin(theta/2.0) * Sx
@@ -90,7 +90,7 @@ def TDVP_FermiHubbard():
         'V': 0.0,
         'bc_MPS': 'finite',
         'cons_N': 'N',
-        'cons_Sz': None      #  DO NOT conserve Sᶻ  ← **important**
+        'cons_Sz': None      #  DO NOT conserve Sᶻ  <-- important
     }
 
     model = FermiHubbardModel(model_params)
@@ -168,15 +168,7 @@ def TDVP_FermiHubbard():
 
 
 def plot_TDVP(times, Sx_t, S_mid, Es, two_site_steps=30, dt=0.05):
-    """
-    Panels: (i) entanglement entropy, (ii) energy shift,
-            (iii-a) ⟨Sx_i(t)⟩, (iii-b) |Q(k,ω)| - the last two are side by side.
-    """
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import matplotlib.gridspec as gridspec
 
-    # ------------- master grid: 3 rows -----------------------------------
     fig = plt.figure(figsize=(11, 9))     # extra width for two heat-maps
     gs  = gridspec.GridSpec(
         3, 1,
@@ -184,13 +176,13 @@ def plot_TDVP(times, Sx_t, S_mid, Es, two_site_steps=30, dt=0.05):
         hspace=0.32
     )
 
-    # ---------- (i) entropy ----------------------------------------------
+    # ---------- entropy ----------------------------------------------
     ax0 = fig.add_subplot(gs[0])
     ax0.plot(times, S_mid, lw=1.4)
     ax0.set_ylabel(r'entropy $S$')
     ax0.set_xlim(times[0], times[-1])
 
-    # ---------- (ii) energy ----------------------------------------------
+    # ---------- energy -----------------------------------------------
     ax1 = fig.add_subplot(gs[1], sharex=ax0)
     ax1.plot(times, np.array(Es) - Es[0], lw=1.4)
     ax1.set_ylabel(r'$E(t)-E(0)$')
@@ -201,12 +193,10 @@ def plot_TDVP(times, Sx_t, S_mid, Es, two_site_steps=30, dt=0.05):
     for ax in (ax0, ax1):
         ax.axvline(t_switch, color='red', lw=1, ls='--')
 
-    # ------------- sub-grid for the two heat-maps -------------------------
     gs_bottom = gridspec.GridSpecFromSubplotSpec(
         1, 2, subplot_spec=gs[2], wspace=0.25
     )
 
-    # ---------- (iii-a) ⟨Sx_i(t)⟩ heat-map --------------------------------
     ax2 = fig.add_subplot(gs_bottom[0])
     Sx_arr = np.squeeze(np.array(Sx_t))        # (N_t, L)
     im2 = ax2.imshow(

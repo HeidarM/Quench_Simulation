@@ -1,3 +1,4 @@
 # Post-process a previous job by number
 task: post_process
+data_source: simulation # ibm | simulation
 job_num: 1

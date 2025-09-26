@@ -8,9 +8,8 @@ import json
 from pathlib import Path
 
 
-
-def get_job_by_number(job_num, log_file="job_log.jsonl"):
-    with open(log_file, "r") as f:
+def get_job_by_number(job_num, LOG_FILE):
+    with open(LOG_FILE, "r") as f:
         for line in f:
             entry = json.loads(line)
             if entry["job_num"] == job_num:
@@ -18,14 +17,15 @@ def get_job_by_number(job_num, log_file="job_log.jsonl"):
     raise ValueError(f"Job number {job_num} not found in log.")
 
 
-def print_job_summary(job_num, log_file="job_log.jsonl"):
+
+def print_job_summary(job_num, LOG_FILE):
     try:
-        job = get_job_by_number(job_num, log_file)
+        job = get_job_by_number(job_num, LOG_FILE)
     except ValueError as e:
         print(e)
         return
 
-    print(f"\n Job #{job['job_num']} summary from {log_file}:")
+    print(f"\n Job #{job['job_num']} summary from {LOG_FILE}:")
     print("-" * 40)
     print(f"  Job ID      \t: {job['job_id']}")
     print(f"  Timestamp   \t: {job['timestamp']}")
@@ -117,7 +117,7 @@ def print_jobs_jsonl(LOG_FILE):
                 "backend": rec.get("backend", ""),
                 "L": rec.get("L", ""),
                 "N_f": rec.get("N_f", ""),
-                "dt": rec.get("dt", ""),
+                "T": rec.get("T", ""),
                 "J": rec.get("J", ""),
                 "U": rec.get("U", ""),
                 "N_Trotter": rec.get("N_Trotter", ""),
@@ -140,7 +140,7 @@ def print_jobs_jsonl(LOG_FILE):
         ("backend", "backend", str),
         ("L", "L", str),
         ("N_f", "N_f", str),
-        ("dt", "dt", lambda v: f"{v:.3f}" if isinstance(v, (int, float)) else str(v)),
+        ("T", "T", lambda v: f"{v:.3f}" if isinstance(v, (int, float)) else str(v)),
         ("J", "J", lambda v: f"{v:.3f}" if isinstance(v, (int, float)) else str(v)),
         ("U", "U", lambda v: f"{v:.3f}" if isinstance(v, (int, float)) else str(v)),
         ("N_Trot", "N_Trotter", str),

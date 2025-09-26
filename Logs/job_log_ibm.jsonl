@@ -1,0 +1,2 @@
+{"job_id": "d3apk6k86mts73dtts10", "backend": "ibm_torino", "L": 16, "N_f": 10, "T": 3, "J": 1.0, "U": 3.0, "N_Trotter": 6, "shots": 4096, "initial_state": "DGA", "n_layers": 3, "initial_state fidelity": 0.8640487354894898, "job_num": 1, "timestamp": "2025-09-25T20:48:46.998320"}
+{"job_id": "d3aq9dc86mts73dtufmg", "backend": "ibm_torino", "L": 15, "N_f": 10, "T": 3, "J": 1.0, "U": 3.0, "N_Trotter": 10, "shots": 4096, "initial_state": "DGA", "n_layers": 3, "initial_state fidelity": 0.8810173431327684, "job_num": 2, "timestamp": "2025-09-25T21:23:17.803502"}

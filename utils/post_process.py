@@ -1,4 +1,4 @@
-# post_process.py
+# utils/post_process.py
 
 from collections import Counter
 from matplotlib import pyplot as plt
@@ -50,7 +50,7 @@ def compute_Sx_i(measurement_counts: dict, i: int, L: int, N_shots: int):
 
 
 
-def post_process(job_id, L, N_Trotter, dt):
+def post_process_ibm(job_id, L, N_Trotter, dt):
     service = QiskitRuntimeService()
     job = service.job(job_id)
     print("\nJob status: \n", job.status())
@@ -60,6 +60,10 @@ def post_process(job_id, L, N_Trotter, dt):
     counts_list = [result.join_data().get_counts() for result in results]        
     shots_list  = [sum(counts.values()) for counts in counts_list]
 
+    compute_spectrum_and_plot(counts_list, shots_list, L, N_Trotter, dt)
+
+
+def compute_spectrum_and_plot(counts_list, shots_list, L, N_Trotter, dt):
 
     print("Computing ⟨Sx_i(t)⟩ as function of time...\n")
 
@@ -72,7 +76,7 @@ def post_process(job_id, L, N_Trotter, dt):
         Sx_t.append(Sx_vals)
 
 
-    plot_Sx_t_and_Qwk(Sx_t, dt)
+    plot_Sx_t_and_Qwk(Sx_t, dt, omega_min=0, omega_max=2*np.pi)
 
 
 
