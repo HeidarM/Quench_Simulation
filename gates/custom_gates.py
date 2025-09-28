@@ -80,26 +80,39 @@ def G(theta_val: float, phi_val: float) -> Gate:
     else:
         raise ValueError("Only real-valued rotation gates (phi=0) are supported, but phi =", phi_val, "was given.")
 
+# This version of the FSWAP was intended to keep the correct symbol for graphical representation, but appears to screw with something internal (transpiler understands it as normal swap?)
+# def FSWAP() -> SwapGate:
+#     """
+#         Fermionic qubit swap
+#     """
 
-def FSWAP() -> SwapGate:
+#     # Define FSWAP logic as a decomposition
+#     qc = QuantumCircuit(2)
+#     qc.h(0)
+#     qc.cx(0, 1)
+#     qc.cx(1, 0)
+#     qc.h(1)
+
+#     # Copy the standard SwapGate to keep it's symbol
+#     fswap = SwapGate().to_mutable()
+
+#     # Override the SWAP definition to get FSWAP
+#     fswap.definition = qc
+
+#     return fswap
+
+
+def FSWAP() -> Gate:
     """
         Fermionic qubit swap
     """
+    qc = QuantumCircuit(2, name="FSWAP")
 
-    # Define FSWAP logic as a decomposition
-    qc = QuantumCircuit(2)
     qc.h(0)
     qc.cx(0, 1)
     qc.cx(1, 0)
     qc.h(1)
-
-    # Copy the standard SwapGate to keep it's symbol
-    fswap = SwapGate().to_mutable()
-
-    # Override the SWAP definition to get FSWAP
-    fswap.definition = qc
-
-    return fswap
+    return qc.to_gate()
 
 def Q(theta_val: float) -> Gate:
     """
@@ -125,7 +138,7 @@ def Q(theta_val: float) -> Gate:
 
 def H(theta_val: float) -> Gate:
     """
-        Two–qubit  hopping  gate  H(θ) := exp[-i θ/2 (XX + YY)].
+        Two–qubit  hopping  gate  H(θ) := exp[i θ/2 (XX + YY)].
     """
     # pretty π label for the drawer
     # symbolic_label = pi_check(theta_val, ndigits=3, output='text')
