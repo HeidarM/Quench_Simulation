@@ -14,14 +14,15 @@ def plot_Sx_t_and_Qwk(Sx_t, dt, omega_min=None, omega_max=None):
 
 
     # Compute spectral function
-    omega, k_vals, Q = quench_spectral_function(Sx_t, dt)
+    omega, k_vals, Q = quench_spectral_function(Sx_t, dt, pad_time=True, reflect_time=True)
 
     # Create side-by-side plots
-    fig, axs = plt.subplots(1, 2, figsize=(14, 4))
+    fig, axs = plt.subplots(1, 2, figsize=(9, 4))
+    
 
     # Plot ⟨Sx_i(t)⟩ heatmap
-    im0 = axs[0].imshow(Sx_t, aspect='auto', origin='lower', cmap='RdBu_r',
-                        vmin=-0.5, vmax=0.5, extent=[0, L, 0, dt * N_Trotter])
+    im0 = axs[0].imshow(Sx_t, aspect='equal', origin='lower', cmap='RdBu_r',
+                        vmin=-0.5, vmax=0.5)
     cbar0 = fig.colorbar(im0, ax=axs[0])
     cbar0.set_label(r"$\langle S^x_i(t) \rangle$")
     axs[0].set_xlabel("Site i")
@@ -29,7 +30,7 @@ def plot_Sx_t_and_Qwk(Sx_t, dt, omega_min=None, omega_max=None):
     axs[0].set_title("Spin-x expectation values over time")
 
     # Plot spectral function Q(ω, k)
-    im1 = axs[1].imshow(Q, origin='lower', aspect='auto',
+    im1 = axs[1].imshow(Q, origin='lower', aspect='equal',
                         extent=[k_vals[0], k_vals[-1], omega[0], omega[-1]],
                         cmap='Blues'#, interpolation='bilinear'
                         )

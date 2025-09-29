@@ -41,13 +41,12 @@ def DGA_ansatz_circuit(L: int, N_f: int, n_layers: int, maximal_spread: bool = T
     # Put N_f fermions in ↑ block and N_f in ↓ block: 2*N_f fermions in total
     if maximal_spread:
         occ = _evenly_spaced_sites(L, N_f)
-        for i in occ:
+    else:
+        occ = np.arange(N_f)
+
+    for i in occ:
             qc.x(i)       # ↑ sector
             qc.x(i + L)   # ↓ sector
-    else:
-        for q in range(N_f):
-            qc.x(q)       # ↑ sector
-            qc.x(q + L)   # ↓ sector
 
     # qc.barrier()
 

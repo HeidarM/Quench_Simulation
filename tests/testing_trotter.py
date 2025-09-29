@@ -147,16 +147,16 @@ def check_trotter_steps(L=3, J=1.0, U=0.7, T=1.0, N_trotter=10, verbose=True):
     return dist, Fp
 
 
-def sweep_convergence(L=3, J=1.0, U=0.7, T=1.0, N_list=(1,2,4,8,16,32)):
+def sweep_convergence(L=3, J=1.0, U=0.7, T=1.0, N_trotter_list=(1,2,4,8,16,32)):
     rows = []
-    for N in N_list:
+    for N in N_trotter_list:
         dist, Fp = check_trotter_steps(L=L, J=J, U=U, T=T, N_trotter=N, verbose=False)
         rows.append((N, T/N, dist, Fp))
     print(f"\nConvergence at fixed T={T}:")
-    print("   N   |     dt      |   ||ΔU||_2    |   F_pro")
-    print("--------+-------------+---------------+-----------")
+    print("   N_trotter   |     dt      |   ||ΔU||_2    |   F_pro")
+    print("---------------+-------------+---------------+-----------")
     for N, dt, dist, Fp in rows:
-        print(f"{N:6d} | {dt:11.6g} | {dist:13.6e} | {Fp:9.7f}")
+        print(f"  {N:6d}       | {dt:11.6g} | {dist:13.6e} | {Fp:9.7f}")
     return rows
 
 
@@ -167,15 +167,16 @@ if __name__ == "__main__":
         dict(L=3, J=1.0, U=3.0, T=0.05, N_trotter=1),
         dict(L=3, J=1.0, U=3.0, T=0.1, N_trotter=1),
         dict(L=3, J=1.0, U=3.0, T=0.5, N_trotter=1),
-        dict(L=3, J=1.0, U=3.0, T=1.0, N_trotter=1)
+        dict(L=3, J=1.0, U=3.0, T=1.5, N_trotter=1)
     ]
 
     print("\n-------- Testing Single Step --------")
     for p in params:
         check_trotter_steps(**p)
+        print()
 
 
     print("\n-------- Testing Total Time --------")
-    check_trotter_steps(L=3, J=1.0, U=3.0, T=5.0, N_trotter=1000)
+    # check_trotter_steps(L=3, J=1.0, U=3.0, T=5.0, N_trotter=1000)
 
-    sweep_convergence(L=3, J=0.8, U=1.2, T=2.0, N_list=[1,2,4,8,16,32,64])
+    sweep_convergence(L=3, J=1.0, U=3.0, T=4.0, N_trotter_list=[1,2,4,8,16,32,64])

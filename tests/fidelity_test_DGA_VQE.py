@@ -44,7 +44,7 @@ if __name__ == "__main__":
     nf = 2/3
     N_f = round(nf/2*L) # Number of fermions per spin sector
     n_layers = 3
-    fast_optimizer = False # True will use a much faster optimizer instead of VQE, and use it as initial
+    fast_optimizer = True # True will use a much faster optimizer instead of VQE, and use it as initial
 
     init = None
 
@@ -53,8 +53,9 @@ if __name__ == "__main__":
         Q = generate_Q_mat(L, N_f).astype(float)
         init, _, _ = optimize_thetas_multistart(Q, n_layers, n_starts=32, maxiter=100)
 
-
-    fidelities = []
+    # Q_mat = generate_Q_mat(L, N_f)
+    # slater_circuit = slaters_determinant_circuit(Q_mat)
+    # psi_slater = Statevector.from_instruction(slater_circuit)
 
     psi_slater = slater_statevector(L, N_f) # Much faster
 
@@ -65,7 +66,6 @@ if __name__ == "__main__":
     overlap = psi_dga.inner(psi_slater)
     fidelity = abs(overlap)**2
 
-    fidelities.append((n_layers, fidelity))
 
     print("Overlap:", overlap)
     print("Fidelity:", fidelity)

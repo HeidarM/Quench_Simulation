@@ -72,9 +72,9 @@ def dga_overlap_and_fidelity(Q, thetas, n_layers):
         # build B from bricks without forming U
         B = _build_B_from_brick(L, N_f, thetas, n_layers)   # (L x N_f)
 
-        # per-spin overlap matrix S = Q* @ B = Q @ B  (real)
-        S = Q @ B                                   # (N_f × N_f)
-        sign, logabsdet = np.linalg.slogdet(S)      # for stability (avoid overflow if det S is very small/large), better than det
+        # per-spin overlap matrix X = Q* @ B = Q @ B  (real)
+        X = Q @ B                                   # (N_f × N_f)
+        sign, logabsdet = np.linalg.slogdet(X)      # for stability (avoid overflow if det S is very small/large), better than det
         
         overlap_per_spin = sign * np.exp(logabsdet) # det(AˆT @ B)
         overlap_total = overlap_per_spin**2         # spin-up/down identical

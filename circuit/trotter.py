@@ -2,7 +2,6 @@
 from qiskit import QuantumCircuit
 from gates.custom_gates import H, O, FSWAP
 
-# TODO: CHECK THIS
 def trotter_step(qc, L: int, dt: float, J: float, U: float):
     """
     ONE primitive (first-order) Suzuki–Trotter slice:

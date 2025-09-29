@@ -41,13 +41,13 @@ python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
 
 ## DGA state and optimization
 ### VQE
-The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determinant state and uses Variational Quantum Eigensolver (VQE) to optimize the parameters (classically). This has been implemented in `run_VQE_for_DGA` function in `runners/run_VQE_DGA.py`. In `utils/VQE_convergence.py` I have implemented functions for more advanced step sizes, for faster convergence, class to check fidelity for checking convergence and early terminaion, and a class to track and live plot progress. In `run_VQE_for_DGA`, many of the details can be controlled.
-
-See `tests/fidelity_test_DGA_VQE.py` for usage of these VQE functionality.
+The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determinant state and uses Variational Quantum Eigensolver (VQE) to optimize the parameters (classically). This has been implemented in the `run_VQE_for_DGA` function in `runners/run_VQE_DGA.py`. In `utils/VQE_convergence.py` I have implemented callback functions for more advanced step sizes (with restarts), class to check fidelity for checking convergence and determine early terminaion, and a class to track and live plot progress. In `run_VQE_for_DGA`, most of the functionality can be controlled.
 
 <p align = center>
-  <img src="optimized_fidelity.png" alt="Fidelity vs L" width="300"/>
+  <img src="VQE_live_plot.png" alt="Fidelity vs L" width="600"/>
 </p>
+
+See `tests/fidelity_test_DGA_VQE.py` for usage of the VQE functionality.
 
 
 #### Bug in qiskit-algorithms 0.4.0
@@ -71,6 +71,10 @@ For the Slaters state $A^T = Q$ (where $Q$ is the orbital matrix usually used in
 The computation of fidelity using this, is much faster than using qiskit circuits. As seen in `tests/faster_fidelity_test.py`, for `L = 12` and `n_layer = 1` DGA, it's over 300,000 times faster than qiskit circuits (simulated with aer).
 
 This determinant can be very efficiently maximized, almost instantly for any size. In `utils/optimize_fidelity.py` this is implemented using scipy.optimize and the [L-BFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS) algorithm. To ensure global minimum is found, I use a multi-start strategy, with a Sobol sequence to distribute initial points. The codes runs multi-threaded.
+
+<p align = center>
+  <img src="optimized_fidelity.png" alt="Fidelity vs L" width="300"/>
+</p>
 
 ## Logs of jobs on IBM quantum computer or local simulator
 Jobs run on real quantum computer are logged in `logs/job_log_ibm.jsonl`, while those run in local simulator are logged in `logs/job_log_simulation.jsonl`. The simulation runs also save the measurements.

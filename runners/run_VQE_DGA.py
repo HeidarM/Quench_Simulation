@@ -55,7 +55,7 @@ def run_VQE_for_DGA(L: int, N_f: int, n_layers: int, backend_config: BackendConf
         print(f"Running VQE for DGA with L={L}, N_f={N_f}, n_layers={n_layers} on {backend_config.kind} backend")
     
     backend_manager = BackendManager(backend_config)
-    ansatz, theta = DGA_ansatz_circuit(L=L, N_f=N_f, n_layers=n_layers)
+    ansatz, theta = DGA_ansatz_circuit(L=L, N_f=N_f, n_layers=n_layers, maximal_spread=True)
     H0 = free_fermion_H0(L, J=1.0)
 
     Q = generate_Q_mat(L, N_f)
