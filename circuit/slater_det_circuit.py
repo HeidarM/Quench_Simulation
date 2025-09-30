@@ -13,7 +13,19 @@ from gates.custom_gates import G
 
 # For constructing Slater's determinant state (for one spin sector only)
 def generate_Q_mat(L, N_f):
-    # Wave function for OBC
+    """
+    First N_f single-particle orbitals (rows) for a 1D tight-binding chain of length L
+    with open boundary conditions (OBC).
+
+    Orbitals (standing waves):
+        ψ_n(j) = Sqrt[2/(L+1)] * sin(k_n * (j+1)),  k_n = nπ/(L+1),  n=1..N_f,  j=0..L-1
+    Hamiltonian (spinless, OBC, hopping t):
+        H = -t * Sum_{j=0}^{L-2} ( c†_j c_{j+1} + c†_{j+1} c_j )
+    Energies of these modes:
+        ε_n = -2 t cos(k_n)
+
+    Rows of Q_mat are orthonormal and basis used to build a Slater determinant.
+    """
     j  = np.arange(L)                      # site indices 0 … L−1
     n  = np.arange(1, N_f + 1)[:, None]    # mode numbers 1 … N_f (column)
     k  = n * np.pi / (L + 1)               # quantised momenta (N_f×1)
@@ -44,6 +56,7 @@ def slaters_determinant_circuit(Q_mat: np.ndarray) -> QuantumCircuit:
     # print([φ for (j, k, θ, φ) in rot_list])
 
     # Put N_f fermions in ↑ block and N_f in ↓ block: 2*N_f fermions in total
+    # Givens rotation construction assumes this, and will delocalize the fermions afterwards
     for q in range(N_f):
         qc.x(q)           # ↑ block
         qc.x(q+L)         # ↓ block
