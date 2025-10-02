@@ -57,10 +57,10 @@ def _apply_cols(mat: np.ndarray, i: int, j: int, G: np.ndarray) -> None:
 
 def slaters_determinant_givens_rotation_list(Q: np.ndarray) -> List[Tuple[int, int, float, float]]:
     """
-    Return a list of Givens-rotation instructions
+    Returns a list of Givens-rotation instructions
         (j, k, θ, φ)      ←→      G_jk(θ, φ)
     which, when applied to qubits **j** and **k** (Jordan-Wigner order),
-    prepare the Slater determinant represented by the N_fxN matrix ``Q``.
+    prepare the Slater determinant represented by the N_f x N matrix ``Q``.
 
     Following arXiv:1711.05395:
 

@@ -56,7 +56,7 @@ def slaters_determinant_circuit(Q_mat: np.ndarray) -> QuantumCircuit:
     # print([φ for (j, k, θ, φ) in rot_list])
 
     # Put N_f fermions in ↑ block and N_f in ↓ block: 2*N_f fermions in total
-    # Givens rotation construction assumes this, and will delocalize the fermions afterwards
+    # Givens rotation construction assumes this, and will delocalize the fermions afterwards (Equation (9) in 1711.05395)
     for q in range(N_f):
         qc.x(q)           # ↑ block
         qc.x(q+L)         # ↓ block

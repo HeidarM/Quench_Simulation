@@ -31,7 +31,7 @@ def _is_zero(x, tol=1e-12):
 
 def N(qc: QuantumCircuit, q1: int, q2: int, alpha: float, beta: float, gamma: float):
     """
-    N(alpha, 0, gamma) on qubits (q1, q2) as defined in paper
+    N(alpha, beta, gamma) on qubits (q1, q2) as defined in paper
     """
     if alpha != 0:
         RXX(qc, q1, q2, alpha)
@@ -117,7 +117,7 @@ def FSWAP() -> Gate:
 def Q(theta_val: float) -> Gate:
     """
         Two–qubit local-quench gate
-            Q(θ) = exp[ -i θ/4 (XX + YY) ]
+            Q(θ) = exp[ i θ/2 (XX + YY) ]
         with θ = π/4 in the paper.
     """
     # pretty label for the drawer
@@ -129,7 +129,8 @@ def Q(theta_val: float) -> Gate:
     qc = QuantumCircuit(2, name=f"Q({symbolic_label})")
 
     # Q = e^{-i θ/4 X⊗X} · e^{-i θ/4 Y⊗Y}
-    N(qc, 0, 1, -theta/4, -theta/4, 0)
+    # N(qc, 0, 1, -theta/4, -theta/4, 0)
+    N(qc, 0, 1, theta/2, theta/2, 0)
 
     return qc.assign_parameters({theta: theta_val}).to_gate(label=f"Q")
 
@@ -138,7 +139,7 @@ def Q(theta_val: float) -> Gate:
 
 def H(theta_val: float) -> Gate:
     """
-        Two–qubit  hopping  gate  H(θ) := exp[i θ/2 (XX + YY)].
+        Two–qubit  hopping  gate  H(θ) := exp[-i θ/2 (XX + YY)].
     """
     # pretty π label for the drawer
     # symbolic_label = pi_check(theta_val, ndigits=3, output='text')
@@ -148,7 +149,8 @@ def H(theta_val: float) -> Gate:
     theta = theta_val if _is_param(theta_val) else Parameter("θ") # symbolic parameter
     qc  = QuantumCircuit(2)
  
-    N(qc, 0, 1, -theta/2, -theta/2, 0)
+    # TODO: CHECK THIS CAREFULLY
+    N(qc, 0, 1, theta/2, theta/2, 0)
 
     # return qc.assign_parameters({theta: theta_val}).to_gate(label=f"H({symbolic_label})")
     if _is_param(theta_val):

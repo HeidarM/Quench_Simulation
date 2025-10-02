@@ -1,11 +1,11 @@
 task: simulate  # simulate | run_qc | post_process
 
-L: 15
-T: 3
+L: 12
+T: 20
 J: 1.0
 U: 3.0
-N_Trotter: 15
+N_Trotter: 100
 fill_fraction: 0.6666666666666666
-initial_state: DGA # slater | DGA (with DGA you need n_layers as well)
+initial_state: slater # slater | DGA (with DGA you need n_layers as well)
 n_layers: 3
 transpile_optimization_level: 3

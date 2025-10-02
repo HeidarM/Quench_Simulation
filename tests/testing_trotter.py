@@ -8,6 +8,7 @@ from math import prod
 from scipy.linalg import expm
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Operator
+from gates.custom_gates import Q
 
 from circuit.trotter import trotter_step
 
@@ -15,11 +16,19 @@ from circuit.trotter import trotter_step
 # ---------- Jordan–Wigner operators ----------
 
 # Given a list of matrices, [A0, A1, ..., A_{n-1}], this will return the tensor/kronecker product A0x...xA_{n-1}
-def kron_all(operator_list):
-    tensor_product = operator_list[0]
-    for A in operator_list[1:]:
-        tensor_product = np.kron(tensor_product, A)
-    return tensor_product
+# def kron_all(operator_list):
+#     tensor_product = operator_list[0]
+#     for A in operator_list[1:]:
+#         tensor_product = np.kron(tensor_product, A)
+#     return tensor_product
+
+def kron_all(ops):
+    ops = ops[::-1]                      # <-- reverse once here
+    tp = ops[0]
+    for A in ops[1:]:
+        tp = np.kron(tp, A)
+    return tp
+
 
 # Pauli matrices
 I = np.array([[1, 0], [0, 1]], dtype=complex)
@@ -30,25 +39,26 @@ P = np.array([[0, 1], [0, 0]], dtype=complex)  # sigma^+ = |1><0|
 M = np.array([[0, 0], [1, 0]], dtype=complex)  # sigma^- = |0><1|
 
 # Jordan-Wigner representation of creation/annihilation operators
+def jw_annihilation(j, n_qubits):
+    # c_j = (prod_{k<j} Z_k) * sigma^+_j
+    ops = [I] * n_qubits
+    for k in range(j):
+        ops[k] = Z
+    ops[j] = P
+    return kron_all(ops)
+
 def jw_creation(j, n_qubits):
-    # c^\dagger_j = (prod_{k<j} Z_j) * sigma^+_j
+    # c^\dagger_j = (prod_{k<j} Z_j) * sigma^-_j
     ops = [I] * n_qubits    # Fill with identity operator
 
     # Then replace what's needed
     for k in range(j):
         ops[k] = Z
-    ops[j] = P
+    ops[j] = M
 
     # Return tensor product
     return kron_all(ops)
 
-def jw_annihilation(j, n_qubits):
-    # c_j = (prod_{k<j} Z_k) * sigma^-_j
-    ops = [I] * n_qubits
-    for k in range(j):
-        ops[k] = Z
-    ops[j] = M
-    return kron_all(ops)
 
 def jw_number(j, n_qubits):
     # n = c^\dagger_j c_j = (I - Z_j)/2
@@ -67,7 +77,7 @@ def hubbard_hamiltonian(L, J, U):
     #  -J sum_{i, s \in (↑,↓)} (c^dagger_{i,s} c_{i+1,s} + h.c.)
     #    + U sum_i n_{i,up} n_{i,down}
 
-    n_qubits = 2 * L
+    n_qubits = 2 * L # spin up and spin down
     dim = 2 ** n_qubits
     H = np.zeros((dim, dim), dtype=complex)
 
@@ -161,6 +171,56 @@ def sweep_convergence(L=3, J=1.0, U=0.7, T=1.0, N_trotter_list=(1,2,4,8,16,32)):
 
 
 
+# ---------- checking quench operator ----------
+def QuenchOperator_jw(theta, L, i):
+    n_qubits = 2 * L
+    up = mode_index(i, 0)
+    dn = mode_index(i, 1)
+
+    Sx_i =(jw_creation(up, n_qubits) @ jw_annihilation(dn, n_qubits) +
+            jw_creation(dn, n_qubits) @ jw_annihilation(up, n_qubits))
+
+    return expm(1j * theta * Sx_i)
+
+def QuenchOperator_XXYY(theta, L, i):
+    n_qubits = 2 * L
+    
+    XX_ops = [I] * n_qubits    # Fill with identity operator
+    YY_ops = [I] * n_qubits    
+
+    XX_ops[2*i]= X
+    XX_ops[2*i+1]= X
+
+    YY_ops[2*i]= Y
+    YY_ops[2*i+1]= Y
+
+    XX = kron_all(XX_ops)
+    YY = kron_all(YY_ops)
+
+    # Return tensor product
+    return expm(1j * theta/2.0 * (XX + YY))
+
+def check_quench_operator(L, theta):
+    print(f'L = {L}, theta = {theta}')
+
+    for i in range(L):
+        U_i = QuenchOperator_XXYY(theta, L, i)
+        U2_i = QuenchOperator_jw(theta, L, i)
+
+        qc = QuantumCircuit(2 * L)
+        qc.append(Q(theta), [2*i, 2*i+1])
+        
+        U_circuit = Operator(qc).data
+        
+        dist = unitary_distance(U_i, U_circuit)
+        Fp = process_fidelity(U_i, U_circuit)
+
+        print(f"site {i:2d}:  ||ΔU||_2 = {dist:.3e}   F_pro = {Fp:.10f}")
+
+
+
+
+
 if __name__ == "__main__":
     # A couple of small-L smoke tests
     params = [
@@ -180,3 +240,6 @@ if __name__ == "__main__":
     # check_trotter_steps(L=3, J=1.0, U=3.0, T=5.0, N_trotter=1000)
 
     sweep_convergence(L=3, J=1.0, U=3.0, T=4.0, N_trotter_list=[1,2,4,8,16,32,64])
+
+    print("\n-------- Testing Quench Operator --------")
+    check_quench_operator(L=3, theta=np.pi/4)

@@ -25,6 +25,11 @@ type of tasks: simulate | run_qc | post_process
 
 Post process computes $\langle S^x_i\rangle$ and Quench Spectral Function $Q(\omega,k)$ from raw measurement bitstrings
 
+<p align = center>
+  <img src="Quantum_simulation.png" alt="Quantum Simulation" width="500"/>
+</p>
+
+
 ## Classical simulation (TeNPy):
 - Can be run from root folder as: 
 ```bash

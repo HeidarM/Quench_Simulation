@@ -26,10 +26,10 @@ def quench_spectral_function(Sx_t, dt, pad_time=True, reflect_time=True):
     Q     : 2-D np.ndarray  |FFT2| / max(|FFT2|)
     """
 
-    Sx = np.array(Sx_t, copy=False)   # (N_t, L)
+    Sx = np.array(Sx_t)   # (N_t, L)
     Nt, L = Sx.shape
     T = Nt * dt
-    J = 1
+    J = 1.0
     omega_max = 6.0 * J
 
     # --- choose target padding length N' as in appendix ---
@@ -44,6 +44,7 @@ def quench_spectral_function(Sx_t, dt, pad_time=True, reflect_time=True):
     if reflect_time:
         Sx = np.concatenate([Sx[::-1, :], Sx], axis=0)
 
+    # TODO: BC correct?
     F = fft.fftshift(fft.fft2(Sx, norm='forward'))
     Q = np.abs(F)
     Q /= Q.max() if Q.size and Q.max() != 0 else 1.0
@@ -51,3 +52,5 @@ def quench_spectral_function(Sx_t, dt, pad_time=True, reflect_time=True):
     omega = 2*np.pi*fft.fftshift(fft.fftfreq(Sx.shape[0], d=dt))
     k     = 2*np.pi*fft.fftshift(fft.fftfreq(L,          d=1))
     return omega, k, Q
+
+
