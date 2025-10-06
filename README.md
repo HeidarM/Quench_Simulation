@@ -1,6 +1,6 @@
-# Quench Simulation
+# Quench Spectroscopy
 
-Reproducing some of the results from [arXiv:2501.04649](https://arxiv.org/abs/2501.04649). Using TeNPy for the classical simulation and QiSkit for the quantum algorithms.
+Implementation of the algorithms from [arXiv:2501.04649](https://arxiv.org/abs/2501.04649) for extracting spin excitations in fermionic systems on a quantum computer from their dynamics (using Quench Spectroscopy). The project uses TeNPy for the classical simulation and QiSkit for quantum algorithms (simulated or on real quantum hardware).
 
 
 ## Notes
