@@ -26,7 +26,7 @@ type of tasks: simulate | run_qc | post_process
 Post process computes $\langle S^x_i\rangle$ and Quench Spectral Function $Q(\omega,k)$ from raw measurement bitstrings
 
 <p align = center>
-  <img src="Quantum_simulation.png" alt="Quantum Simulation" width="500"/>
+  <img src="Quantum_simulation.png" alt="Quantum Simulation" width="800"/>
 </p>
 
 
@@ -39,7 +39,7 @@ python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
 - The code uses Time-Dependent Variational Principle (TDVP) with Matrix Product States (MPS)
 
 <p align = center>
-  <img src="classical_simulation/Lg_size2.png" alt="Quench Simulation" width="400"/>
+  <img src="classical_simulation/Lg_size2.png" alt="Quench Simulation" width="800"/>
 </p>
 
 
@@ -49,7 +49,7 @@ python -m classical_simulation.1d_Fermi_Hubbard_quench_spectroscopy
 The paper uses the Dense Givens Approximate (DGA) to approximate a Slater determinant state and uses Variational Quantum Eigensolver (VQE) to optimize the parameters (classically). This has been implemented in the `run_VQE_for_DGA` function in `runners/run_VQE_DGA.py`. In `utils/VQE_convergence.py` I have implemented callback functions for more advanced step sizes (with restarts), class to check fidelity for checking convergence and determine early terminaion, and a class to track and live plot progress. In `run_VQE_for_DGA`, most of the functionality can be controlled.
 
 <p align = center>
-  <img src="VQE_live_plot.png" alt="Fidelity vs L" width="600"/>
+  <img src="VQE_live_plot.png" alt="Fidelity vs L" width="900"/>
 </p>
 
 See `tests/fidelity_test_DGA_VQE.py` for usage of the VQE functionality.
@@ -78,7 +78,7 @@ The computation of fidelity using this, is much faster than using qiskit circuit
 This determinant can be very efficiently maximized, almost instantly for any size. In `utils/optimize_fidelity.py` this is implemented using scipy.optimize and the [L-BFGS-B](https://en.wikipedia.org/wiki/Limited-memory_BFGS) algorithm. To ensure global minimum is found, I use a multi-start strategy, with a Sobol sequence to distribute initial points. The codes runs multi-threaded.
 
 <p align = center>
-  <img src="optimized_fidelity.png" alt="Fidelity vs L" width="300"/>
+  <img src="optimized_fidelity.png" alt="Fidelity vs L" width="400"/>
 </p>
 
 ## Logs of jobs on IBM quantum computer or local simulator
