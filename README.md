@@ -21,7 +21,23 @@ type of tasks: simulate | run_qc | post_process
   - simulate: simulates quantum computer locally (using Qiskit Aer)
   - run_qc: run on IBM quantum computer, will store job id and data used in `job_log.jsonl` file
   - post_process: post process code already run on IBM quantum computer or in simulator by providing job_id or job_num and data_source (simulation or ibm)
-  
+
+For example, to run on IBM quantum hardware:
+
+```yaml
+# Config to run on least busy IBM Quantum Computer
+task: run_qc  # simulate | run_qc | post_process
+
+L: 15
+T: 3
+J: 1.0
+U: 3.0
+N_Trotter: 10
+fill_fraction: 0.6666666666666666
+initial_state: DGA # slater | DGA (with DGA you need n_layers as well)
+n_layers: 3
+transpile_optimization_level: 3
+```
 
 Post process computes $\langle S^x_i\rangle$ and Quench Spectral Function $Q(\omega,k)$ from raw measurement bitstrings
 
